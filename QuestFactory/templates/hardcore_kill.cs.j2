@@ -1,0 +1,383 @@
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using DOL.Database;
+using DOL.Events;
+using DOL.GS.PacketHandler;
+using DOL.GS.Quests;
+using log4net;
+
+namespace DOL.GS.DailyQuest
+{
+	public class {{ class_name }} : Quests.DailyQuest
+	{
+		/// <summary>
+		/// Defines a logger for this class.
+		/// </summary>
+		private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+		private const string questTitle = "[Hardcore] {{ quest_title }}";
+		private const int minimumLevel = {{ min_level }};
+		private const int maximumLevel = {{ max_level }};
+
+		// NPC lookup constants — no static reference to avoid null race condition on script load
+		private const string NPC_NAME    = "{{ npc_name }}";
+		private const int    NPC_REGION  = {{ npc_region }};
+		private const int    NPC_X       = {{ npc_x }};
+		private const int    NPC_Y       = {{ npc_y }};
+		private const int    NPC_Z       = {{ npc_z }};
+		private const int    NPC_HEADING = {{ npc_heading }};
+
+		// Dynamic NPC accessor — always finds the live NPC in world
+		private static GameNPC {{ npc_var }}
+		{
+			get
+			{
+				foreach (GameNPC npc in WorldMgr.GetNPCsByName(NPC_NAME, eRealm.{{ realm }}))
+					if (npc.CurrentRegionID == NPC_REGION && npc.X == NPC_X && npc.Y == NPC_Y)
+						return npc;
+				return null;
+			}
+		}
+
+		private int OrangeConKilled = 0;
+		private int MAX_KillGoal = {{ kill_quota }};
+
+		// Constructors
+		public {{ class_name }}() : base()
+		{
+		}
+
+		public {{ class_name }}(GamePlayer questingPlayer) : base(questingPlayer)
+		{
+		}
+
+		public {{ class_name }}(GamePlayer questingPlayer, int step) : base(questingPlayer, step)
+		{
+		}
+
+		public {{ class_name }}(GamePlayer questingPlayer, DbQuest dbQuest) : base(questingPlayer, dbQuest)
+		{
+		}
+
+		public override int Level
+		{
+			get
+			{
+				// Quest Level
+				return minimumLevel;
+			}
+		}
+
+		[ScriptLoadedEvent]
+		public static void ScriptLoaded(DOLEvent e, object sender, EventArgs args)
+		{
+			if (!ServerProperties.Properties.LOAD_QUESTS)
+				return;
+
+			#region defineNPCs
+
+			GameNPC questNPC = {{ npc_var }};
+
+			if (questNPC == null)
+			{
+				if (log.IsWarnEnabled)
+					log.Warn("Could not find {{ npc_name }}, creating it ...");
+				questNPC = new GameNPC();
+				questNPC.Model = {{ npc_model }};
+				questNPC.Name = "{{ npc_name }}";
+				questNPC.GuildName = "{{ npc_guild }}";
+				questNPC.Realm = eRealm.{{ realm }};
+				// {{ npc_location_comment }}
+				questNPC.CurrentRegionID = NPC_REGION;
+				questNPC.Size = 60;
+				questNPC.Level = 59;
+				questNPC.X = NPC_X;
+				questNPC.Y = NPC_Y;
+				questNPC.Z = NPC_Z;
+				questNPC.Heading = NPC_HEADING;
+				questNPC.Flags |= GameNPC.eFlags.PEACE;
+				questNPC.AddToWorld();
+				if (SAVE_INTO_DATABASE)
+					questNPC.SaveIntoDatabase();
+			}
+
+			#endregion
+
+			#region defineItems
+			#endregion
+
+			#region defineObject
+			#endregion
+
+			GameEventMgr.AddHandler(GamePlayerEvent.AcceptQuest, new DOLEventHandler(SubscribeQuest));
+			GameEventMgr.AddHandler(GamePlayerEvent.DeclineQuest, new DOLEventHandler(SubscribeQuest));
+
+			GameEventMgr.AddHandler(questNPC, GameObjectEvent.Interact, new DOLEventHandler(TalkTo{{ npc_var }}));
+			GameEventMgr.AddHandler(questNPC, GameLivingEvent.WhisperReceive, new DOLEventHandler(TalkTo{{ npc_var }}));
+
+			questNPC.AddQuestToGive(typeof ({{ class_name }}));
+
+			if (log.IsInfoEnabled)
+				log.Info("Quest \"" + questTitle + "\" initialized");
+		}
+
+		[ScriptUnloadedEvent]
+		public static void ScriptUnloaded(DOLEvent e, object sender, EventArgs args)
+		{
+			GameNPC questNPC = {{ npc_var }};
+			if (questNPC == null) return;
+			GameEventMgr.RemoveHandler(GamePlayerEvent.AcceptQuest, new DOLEventHandler(SubscribeQuest));
+			GameEventMgr.RemoveHandler(GamePlayerEvent.DeclineQuest, new DOLEventHandler(SubscribeQuest));
+			GameEventMgr.RemoveHandler(questNPC, GameObjectEvent.Interact, new DOLEventHandler(TalkTo{{ npc_var }}));
+			GameEventMgr.RemoveHandler(questNPC, GameLivingEvent.WhisperReceive, new DOLEventHandler(TalkTo{{ npc_var }}));
+			questNPC.RemoveQuestToGive(typeof ({{ class_name }}));
+		}
+
+		private static void TalkTo{{ npc_var }}(DOLEvent e, object sender, EventArgs args)
+		{
+			GamePlayer player = ((SourceEventArgs) args).Source as GamePlayer;
+			if (player == null) return;
+			GameNPC questNPC = {{ npc_var }};
+			if (questNPC == null) return;
+			if (questNPC.CanGiveQuest(typeof ({{ class_name }}), player) <= 0) return;
+
+			//We also check if the player is already doing the quest
+			{{ class_name }} quest = player.IsDoingQuest(typeof ({{ class_name }})) as {{ class_name }};
+
+			if (e == GameObjectEvent.Interact)
+			{
+				if (quest != null)
+				{
+					switch (quest.Step)
+					{
+						case 1:
+							questNPC.SayTo(player, "{{ dialog_in_progress }}");
+							break;
+						case 2:
+							questNPC.SayTo(player, "" + player.Name + ". You have earned [{{ whisper_finish }}].");
+							break;
+					}
+				}
+				else
+				{
+					questNPC.SayTo(player, ""+ player.Name +". {{ dialog_intro }}"+
+					                     "\n Will you defy them? Stand tall and [{{ whisper_accept }}].");
+					questNPC.SayTo(player, " NOTE: This is a HARDCORE quest. If you die or join a group while doing this quest, it will be aborted automatically.");
+				}
+			}
+			// The player whispered to the NPC
+			else if (e == GameLivingEvent.WhisperReceive)
+			{
+				WhisperReceiveEventArgs wArgs = (WhisperReceiveEventArgs) args;
+				if (quest == null)
+				{
+					switch (wArgs.Text)
+					{
+						case "{{ whisper_accept }}":
+							player.Out.SendQuestSubscribeCommand(questNPC, QuestMgr.GetIDForQuestType(typeof({{ class_name }})), "Will you undertake " + questTitle + "?");
+							break;
+					}
+				}
+				else
+				{
+					switch (wArgs.Text)
+					{
+						case "{{ whisper_finish }}":
+							if (quest.Step == 2)
+							{
+								player.Out.SendMessage("{{ dialog_reward }}", eChatType.CT_Chat, eChatLoc.CL_PopupWindow);
+								quest.FinishQuest();
+							}
+							break;
+						case "abort":
+							player.Out.SendCustomDialog("To face one's own demise is not for the faint of heart. Death has turned its back on you for today.", new CustomDialogResponse(CheckPlayerAbortQuest));
+							break;
+					}
+				}
+			}
+		}
+
+		public override bool CheckQuestQualification(GamePlayer player)
+		{
+			// if the player is already doing the quest his level is no longer of relevance
+			if (player.IsDoingQuest(typeof ({{ class_name }})) != null)
+				return true;
+
+			// This checks below are only performed is player isn't doing quest already
+
+			return player.Level >= minimumLevel && player.Level <= maximumLevel;
+		}
+
+		private static void CheckPlayerAbortQuest(GamePlayer player, byte response)
+		{
+			{{ class_name }} quest = player.IsDoingQuest(typeof ({{ class_name }})) as {{ class_name }};
+
+			if (quest == null)
+				return;
+
+			if (response == 0x00)
+			{
+				SendSystemMessage(player, "To face one's own demise is not for the faint of heart.");
+			}
+			else
+			{
+				SendSystemMessage(player, "Aborting Quest " + questTitle + ".");
+				quest.AbortQuest();
+			}
+		}
+
+		private static void SubscribeQuest(DOLEvent e, object sender, EventArgs args)
+		{
+			QuestEventArgs qargs = args as QuestEventArgs;
+			if (qargs == null)
+				return;
+
+			if (qargs.QuestID != QuestMgr.GetIDForQuestType(typeof({{ class_name }})))
+				return;
+
+			if (e == GamePlayerEvent.AcceptQuest)
+				CheckPlayerAcceptQuest(qargs.Player, 0x01);
+			else if (e == GamePlayerEvent.DeclineQuest)
+				CheckPlayerAcceptQuest(qargs.Player, 0x00);
+		}
+
+		private static void CheckPlayerAcceptQuest(GamePlayer player, byte response)
+		{
+			GameNPC questNPC = {{ npc_var }};
+			if (questNPC == null) return;
+			if (questNPC.CanGiveQuest(typeof ({{ class_name }}), player) <= 0) return;
+			if (player.IsDoingQuest(typeof ({{ class_name }})) != null) return;
+			if (player.Group != null) return;
+			if (response == 0x00)
+				player.Out.SendMessage("The titans shall tremble.", eChatType.CT_Say, eChatLoc.CL_PopupWindow);
+			else
+			{
+				if (!questNPC.GiveQuest(typeof ({{ class_name }}), player, 1)) return;
+				questNPC.SayTo(player, "{{ dialog_accepted }}");
+			}
+		}
+
+		//Set quest name
+		public override string Name
+		{
+			get { return questTitle; }
+		}
+
+		// Define Steps
+		public override string Description
+		{
+			get
+			{
+				switch (Step)
+				{
+					case 1:
+						return "{{ description_step1 }} \n Orange Con Monsters Killed: ("+ OrangeConKilled +" | "+MAX_KillGoal+")";
+					case 2:
+						return "Return to {{ npc_name }} in {{ npc_location_comment }} for your Reward.";
+				}
+				return base.Description;
+			}
+		}
+
+		public override void Notify(DOLEvent e, object sender, EventArgs args)
+		{
+			GamePlayer player = sender as GamePlayer;
+
+			if (player?.IsDoingQuest(typeof({{ class_name }})) == null)
+				return;
+
+			if (player.Group != null && Step == 1)
+			{
+				FailQuest();
+				return;
+			}
+
+			if (sender != m_questPlayer)
+				return;
+
+			if (e == GameLivingEvent.Dying && Step == 1)
+			{
+				FailQuest();
+				return;
+			}
+
+			if (e != GameLivingEvent.EnemyKilled || Step != 1) return;
+
+			EnemyKilledEventArgs gArgs = (EnemyKilledEventArgs) args;
+
+			if (gArgs.Target is GameSummonedPet)
+				return;
+
+			if (!(player.GetConLevel(gArgs.Target) > 0)) return;
+			if (gArgs.Target.XPGainers.Count > 1)
+			{
+				Array gainers = new GameObject[gArgs.Target.XPGainers.Count];
+				lock (gArgs.Target._xpGainersLock)
+				{
+
+					foreach (GameLiving living in gArgs.Target.XPGainers.Keys)
+					{
+						if (living == player ||
+						    (player.ControlledBrain is {Body: { }} && player.ControlledBrain.Body == living) ||
+						    (living is BdPet bdpet &&
+						     (bdpet.Owner == player || bdpet.Owner == player.ControlledBrain?.Body)))
+							continue;
+
+						return;
+					}
+				}
+			}
+			OrangeConKilled++;
+			player.Out.SendMessage("[Hardcore] Monster Killed: ("+OrangeConKilled+" | "+MAX_KillGoal+")", eChatType.CT_ScreenCenter, eChatLoc.CL_SystemWindow);
+			player.Out.SendQuestUpdate(this);
+
+			if (OrangeConKilled >= MAX_KillGoal)
+			{
+				// FinishQuest or go back to npc
+				Step = 2;
+			}
+
+		}
+
+		public override string QuestPropertyKey
+		{
+			get => "{{ class_name }}";
+			set { ; }
+		}
+
+		public override void LoadQuestParameters()
+		{
+			OrangeConKilled = GetCustomProperty(QuestPropertyKey) != null ? int.Parse(GetCustomProperty(QuestPropertyKey)) : 0;
+		}
+
+		public override void SaveQuestParameters()
+		{
+			SetCustomProperty(QuestPropertyKey, OrangeConKilled.ToString());
+		}
+
+
+		public override void FinishQuest()
+		{
+			m_questPlayer.ForceGainExperience((m_questPlayer.ExperienceForNextLevel - m_questPlayer.ExperienceForCurrentLevel)/2);
+			m_questPlayer.AddMoney(Money.GetMoney(0,0,m_questPlayer.Level*2,32,Util.Random(50)), "You receive {0} as a reward.");
+			AtlasROGManager.GenerateReward(m_questPlayer, 500);
+			OrangeConKilled = 0;
+			base.FinishQuest(); //Defined in Quest, changes the state, stores in DB etc ...
+
+		}
+
+		private void FailQuest()
+		{
+			OrangeConKilled = 0;
+			m_questPlayer.Out.SendMessage(questTitle + " failed.", eChatType.CT_ScreenCenter_And_CT_System, eChatLoc.CL_SystemWindow);
+			Step = -1;
+
+			if (m_questPlayer.QuestList.TryRemove(this, out byte value))
+				m_questPlayer.AvailableQuestIndexes.Enqueue(value);
+
+			m_questPlayer.AddFinishedQuest(this);
+			m_questPlayer.Out.SendQuestListUpdate();
+		}
+	}
+}

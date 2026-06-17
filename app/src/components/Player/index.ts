@@ -1,0 +1,9 @@
+export { default as PlayerInfo } from "./PlayerInfo.vue";
+export { default as PlayerStats } from "./PlayerStats.vue";
+export { default as PlayerEquipment } from "./PlayerEquipment.vue";
+export { default as PlayerInventory } from "./PlayerInventory.vue";
+export { default as PlayerVault } from "./PlayerVault.vue";
+export { default as PlayerItemsSection } from "./PlayerItemsSection.vue";
+export { default as PlayerMapSection } from "./PlayerMapSection.vue";
+export { default as PlayerQuests } from "./PlayerQuests.vue";
+export { default as PlayerDeathLog } from "./PlayerDeathLog.vue";

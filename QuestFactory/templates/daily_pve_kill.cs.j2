@@ -1,0 +1,350 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
+using DOL.Database;
+using DOL.Events;
+using DOL.GS;
+using DOL.GS.API;
+using DOL.GS.PacketHandler;
+using DOL.GS.PlayerTitles;
+using DOL.GS.Quests;
+using log4net;
+
+namespace DOL.GS.DailyQuest.{{ realm }}
+{
+	public class {{ class_name }} : Quests.DailyQuest
+	{
+		/// <summary>
+		/// Defines a logger for this class.
+		/// </summary>
+		private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+		private const string questTitle = "[Daily] {{ quest_title }}";
+		private const int minimumLevel = {{ min_level }};
+		private const int maximumLevel = {{ max_level }};
+
+		// Kill Goal
+		private const int MAX_KILLED = {{ kill_quota }};
+
+		// NPC lookup constants — no static reference to avoid null race condition on script load
+		private const string NPC_NAME    = "{{ npc_name }}";
+		private const int    NPC_REGION  = {{ npc_region }};
+		private const int    NPC_X       = {{ npc_x }};
+		private const int    NPC_Y       = {{ npc_y }};
+		private const int    NPC_Z       = {{ npc_z }};
+		private const int    NPC_HEADING = {{ npc_heading }};
+
+		private int {{ counter_var }} = 0;
+
+		// Dynamic NPC accessor — always finds the live NPC in world
+		private static GameNPC {{ npc_var }}
+		{
+			get
+			{
+				foreach (GameNPC npc in WorldMgr.GetNPCsByName(NPC_NAME, eRealm.{{ realm }}))
+					if (npc.CurrentRegionID == NPC_REGION && npc.X == NPC_X && npc.Y == NPC_Y)
+						return npc;
+				return null;
+			}
+		}
+
+		// Constructors
+		public {{ class_name }}() : base()
+		{
+		}
+
+		public {{ class_name }}(GamePlayer questingPlayer) : base(questingPlayer)
+		{
+		}
+
+		public {{ class_name }}(GamePlayer questingPlayer, int step) : base(questingPlayer, step)
+		{
+		}
+
+		public {{ class_name }}(GamePlayer questingPlayer, DbQuest dbQuest) : base(questingPlayer, dbQuest)
+		{
+		}
+
+		public override int Level
+		{
+			get
+			{
+				// Quest Level
+				return minimumLevel;
+			}
+		}
+
+		[ScriptLoadedEvent]
+		public static void ScriptLoaded(DOLEvent e, object sender, EventArgs args)
+		{
+			if (!ServerProperties.Properties.LOAD_QUESTS)
+				return;
+
+			#region defineNPCs
+
+			GameNPC questNPC = {{ npc_var }};
+
+			if (questNPC == null)
+			{
+				if (log.IsWarnEnabled)
+					log.Warn("Could not find {{ npc_name }}, creating it ...");
+				questNPC = new GameNPC();
+				questNPC.Model = {{ npc_model }};
+				questNPC.Name = "{{ npc_name }}";
+				questNPC.GuildName = "{{ npc_guild }}";
+				questNPC.Realm = eRealm.{{ realm }};
+				questNPC.CurrentRegionID = NPC_REGION;
+				questNPC.Size = 50;
+				questNPC.Level = 59;
+				// {{ npc_location_comment }}
+				questNPC.X = NPC_X;
+				questNPC.Y = NPC_Y;
+				questNPC.Z = NPC_Z;
+				questNPC.Heading = NPC_HEADING;
+				{% if npc_equipment %}
+				GameNpcInventoryTemplate template = new GameNpcInventoryTemplate();
+				{% for slot, model in npc_equipment %}
+				template.AddNPCEquipment(eInventorySlot.{{ slot }}, {{ model }});
+				{% endfor %}
+				questNPC.Inventory = template.CloseTemplate();
+				{% endif %}
+				questNPC.AddToWorld();
+				if (SAVE_INTO_DATABASE)
+				{
+					questNPC.SaveIntoDatabase();
+				}
+			}
+
+			#endregion
+
+			#region defineItems
+			#endregion
+
+			#region defineObject
+			#endregion
+
+			GameEventMgr.AddHandler(GamePlayerEvent.AcceptQuest, new DOLEventHandler(SubscribeQuest));
+			GameEventMgr.AddHandler(GamePlayerEvent.DeclineQuest, new DOLEventHandler(SubscribeQuest));
+
+			GameEventMgr.AddHandler(questNPC, GameObjectEvent.Interact, new DOLEventHandler(TalkTo{{ npc_var }}));
+			GameEventMgr.AddHandler(questNPC, GameLivingEvent.WhisperReceive, new DOLEventHandler(TalkTo{{ npc_var }}));
+
+			questNPC.AddQuestToGive(typeof ({{ class_name }}));
+
+			if (log.IsInfoEnabled)
+				log.Info("Quest \"" + questTitle + "\" initialized");
+		}
+
+		[ScriptUnloadedEvent]
+		public static void ScriptUnloaded(DOLEvent e, object sender, EventArgs args)
+		{
+			GameNPC questNPC = {{ npc_var }};
+			if (questNPC == null)
+				return;
+			// remove handlers
+			GameEventMgr.RemoveHandler(GamePlayerEvent.AcceptQuest, new DOLEventHandler(SubscribeQuest));
+			GameEventMgr.RemoveHandler(GamePlayerEvent.DeclineQuest, new DOLEventHandler(SubscribeQuest));
+
+			GameEventMgr.RemoveHandler(questNPC, GameObjectEvent.Interact, new DOLEventHandler(TalkTo{{ npc_var }}));
+			GameEventMgr.RemoveHandler(questNPC, GameLivingEvent.WhisperReceive, new DOLEventHandler(TalkTo{{ npc_var }}));
+
+			questNPC.RemoveQuestToGive(typeof ({{ class_name }}));
+		}
+
+		private static void TalkTo{{ npc_var }}(DOLEvent e, object sender, EventArgs args)
+		{
+			GamePlayer player = ((SourceEventArgs) args).Source as GamePlayer;
+			if (player == null)
+				return;
+
+			GameNPC questNPC = {{ npc_var }};
+			if (questNPC == null) return;
+
+			if (questNPC.CanGiveQuest(typeof ({{ class_name }}), player) <= 0)
+				return;
+
+			{{ class_name }} quest = player.IsDoingQuest(typeof ({{ class_name }})) as {{ class_name }};
+
+			if (e == GameObjectEvent.Interact)
+			{
+				if (quest != null)
+				{
+					switch (quest.Step)
+					{
+						case 1:
+							questNPC.SayTo(player, "{{ dialog_in_progress }}");
+							break;
+						case 2:
+							questNPC.SayTo(player, "Hello " + player.Name + ", did you [{{ whisper_finish }}]?");
+							break;
+					}
+				}
+				else
+				{
+					questNPC.SayTo(player, "Hello "+ player.Name +", I am {{ npc_name }}. "+
+					                       "{{ dialog_intro }}\n"+
+					                       "\nCan you [{{ whisper_accept }}]?");
+				}
+			}
+			else if (e == GameLivingEvent.WhisperReceive)
+			{
+				WhisperReceiveEventArgs wArgs = (WhisperReceiveEventArgs) args;
+				if (quest == null)
+				{
+					switch (wArgs.Text)
+					{
+						case "{{ whisper_accept }}":
+							player.Out.SendQuestSubscribeCommand(questNPC, QuestMgr.GetIDForQuestType(typeof({{ class_name }})), "Will you help {{ npc_name }} "+questTitle+"?");
+							break;
+					}
+				}
+				else
+				{
+					switch (wArgs.Text)
+					{
+						case "{{ whisper_finish }}":
+							if (quest.Step == 2)
+							{
+								player.Out.SendMessage("{{ dialog_reward }}", eChatType.CT_Chat, eChatLoc.CL_PopupWindow);
+								quest.FinishQuest();
+							}
+							break;
+						case "abort":
+							player.Out.SendCustomDialog("Do you really want to abort this quest, \nall items gained during quest will be lost?", new CustomDialogResponse(CheckPlayerAbortQuest));
+							break;
+					}
+				}
+			}
+		}
+
+		public override bool CheckQuestQualification(GamePlayer player)
+		{
+			if (player.IsDoingQuest(typeof ({{ class_name }})) != null)
+				return true;
+
+			{% if required_faction %}
+			Faction faction = FactionMgr.GetFactionByID({{ required_faction }});
+			if (faction == null || faction.GetStandingToFaction(player) != Faction.Standing.FRIENDLY)
+				return false;
+			{% endif %}
+
+			return player.Level >= minimumLevel && player.Level <= maximumLevel;
+		}
+
+		public override void LoadQuestParameters()
+		{
+			{{ counter_var }} = GetCustomProperty(QuestPropertyKey) != null ? int.Parse(GetCustomProperty(QuestPropertyKey)) : 0;
+		}
+
+		public override void SaveQuestParameters()
+		{
+			SetCustomProperty(QuestPropertyKey, {{ counter_var }}.ToString());
+		}
+
+		private static void CheckPlayerAbortQuest(GamePlayer player, byte response)
+		{
+			{{ class_name }} quest = player.IsDoingQuest(typeof ({{ class_name }})) as {{ class_name }};
+			if (quest == null) return;
+
+			if (response == 0x00)
+				SendSystemMessage(player, "Good, now go out there and finish your work!");
+			else
+			{
+				SendSystemMessage(player, "Aborting Quest " + questTitle + ". You can start over again if you want.");
+				quest.AbortQuest();
+			}
+		}
+
+		private static void SubscribeQuest(DOLEvent e, object sender, EventArgs args)
+		{
+			QuestEventArgs qargs = args as QuestEventArgs;
+			if (qargs == null) return;
+
+			if (qargs.QuestID != QuestMgr.GetIDForQuestType(typeof({{ class_name }})))
+				return;
+
+			if (e == GamePlayerEvent.AcceptQuest)
+				CheckPlayerAcceptQuest(qargs.Player, 0x01);
+			else if (e == GamePlayerEvent.DeclineQuest)
+				CheckPlayerAcceptQuest(qargs.Player, 0x00);
+		}
+
+		private static void CheckPlayerAcceptQuest(GamePlayer player, byte response)
+		{
+			GameNPC questNPC = {{ npc_var }};
+			if (questNPC == null) return;
+
+			if (questNPC.CanGiveQuest(typeof ({{ class_name }}), player) <= 0)
+				return;
+
+			if (player.IsDoingQuest(typeof ({{ class_name }})) != null)
+				return;
+
+			if (response == 0x00)
+				player.Out.SendMessage("{{ dialog_decline }}", eChatType.CT_Say, eChatLoc.CL_PopupWindow);
+			else
+			{
+				if (!questNPC.GiveQuest(typeof ({{ class_name }}), player, 1))
+					return;
+				questNPC.SayTo(player, "{{ dialog_accepted }}");
+			}
+		}
+
+		public override string Name
+		{
+			get { return questTitle; }
+		}
+
+		public override string Description
+		{
+			get
+			{
+				switch (Step)
+				{
+					case 1:
+						return "{{ description_step1 }} \nKilled: {{ mob_name_display }} ("+ {{ counter_var }} +" | "+ MAX_KILLED +")";
+					case 2:
+						return "Return to {{ npc_name }} in {{ npc_location_comment }} for your Reward.";
+				}
+				return base.Description;
+			}
+		}
+
+		public override void Notify(DOLEvent e, object sender, EventArgs args)
+		{
+			GamePlayer player = sender as GamePlayer;
+
+			if (player == null || player.IsDoingQuest(typeof({{ class_name }})) == null)
+				return;
+
+			if (sender != m_questPlayer)
+				return;
+
+			if (Step != 1 || e != GameLivingEvent.EnemyKilled) return;
+			EnemyKilledEventArgs gArgs = (EnemyKilledEventArgs) args;
+			if (gArgs.Target.Name.ToLower() != "{{ mob_name_lower }}") return;
+			{{ counter_var }}++;
+			player.Out.SendMessage("[Daily] {{ mob_name_display }} Killed: ("+ {{ counter_var }} +" | "+MAX_KILLED+")", eChatType.CT_ScreenCenter, eChatLoc.CL_SystemWindow);
+			player.Out.SendQuestUpdate(this);
+
+			if ({{ counter_var }} >= MAX_KILLED)
+				Step = 2;
+		}
+
+		public override string QuestPropertyKey
+		{
+			get => "{{ class_name }}";
+			set { ; }
+		}
+
+		public override void FinishQuest()
+		{
+			m_questPlayer.ForceGainExperience((m_questPlayer.ExperienceForNextLevel - m_questPlayer.ExperienceForCurrentLevel)/10);
+			m_questPlayer.AddMoney(Money.GetMoney(0,0,m_questPlayer.Level,50,Util.Random(50)), "You receive {0} as a reward.");
+			AtlasROGManager.GenerateReward(m_questPlayer, 100);
+			{{ counter_var }} = 0;
+			base.FinishQuest();
+		}
+	}
+}

@@ -1,0 +1,295 @@
+import os
+import sys
+import hashlib
+import json
+import pymysql
+from flask import Flask, request, jsonify, session, send_from_directory
+from flask_cors import CORS
+
+app = Flask(__name__, static_folder="app/dist")
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "amtemanager_secret_key_123456")
+CORS(app, supports_credentials=True)
+
+# Connexion DB
+DB_HOST = os.environ.get("DB_HOST", "db")
+DB_USER = os.environ.get("DB_USER", "root")
+DB_PASSWORD = os.environ.get("DB_PASSWORD", "bJ7xV9nK4qP2mX8t")
+DB_NAME = os.environ.get("DB_NAME", "opendaoc")
+
+def get_db_connection():
+    return pymysql.connect(
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        database=DB_NAME,
+        charset='utf8mb4',
+        cursorclass=pymysql.cursors.DictCursor
+    )
+
+def crypt_password(password: str) -> str:
+    # Encapsulation UTF-16BE
+    pw_bytes = password.encode('utf-16-be')
+    # Hachage MD5
+    md5_hash = hashlib.md5(pw_bytes).digest()
+    # Formatage sans zéros non significatifs (comportement ToString("X") en C#)
+    parts = [f"{b:X}" for b in md5_hash]
+    return "##" + "".join(parts)
+
+# Tables autorisées pour les requêtes (S, U, I, D)
+# Pour les joueurs, on restreint fortement les droits
+TABLES_ACCESS_PLAYER = {
+    'dataquestjson':             (True, True, True, True),  # Droit complet sur les quêtes dynamiques
+    'npctemplate':               (True, False, False, False), # Lecture seule pour auto-complétion
+    'itemtemplate':              (True, False, False, False), # Lecture seule pour auto-complétion
+    'race':                      (True, False, False, False), # Lecture seule
+    'mob':                       (True, False, True, False), # Lecture + Insertion pour permettre la création de PNJ de quêtes
+    'dolcharacters':             (True, False, False, False), # Lecture seule
+    'serverstats':               (True, False, False, False), # Lecture seule pour le dashboard
+    'guild':                     (True, False, False, False), # Lecture seule pour l'affichage des guildes
+}
+
+@app.route('/api/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        data = request.json or {}
+        username = data.get('login', '').strip()
+        password = data.get('password', '').strip()
+
+        if not username or not password:
+            return jsonify({"error": "Nom d'utilisateur ou mot de passe manquant"}), 400
+
+        try:
+            conn = get_db_connection()
+            with conn.cursor() as cursor:
+                # Récupération du compte dans la table account
+                cursor.execute("SELECT Name, Password, PrivLevel FROM account WHERE Name = %s", (username,))
+                account = cursor.fetchone()
+            conn.close()
+
+            if account:
+                hashed_input = crypt_password(password)
+                db_hash = account['Password']
+                
+                # Vérification
+                is_correct = False
+                if db_hash.startswith("##"):
+                    is_correct = (hashed_input == db_hash)
+                else:
+                    is_correct = (password == db_hash)
+
+                if is_correct:
+                    session['username'] = account['Name']
+                    session['priv_level'] = account['PrivLevel']
+                    return jsonify({
+                        "ok": True,
+                        "name": account['Name'],
+                        "privLevel": account['PrivLevel']
+                    })
+                
+            return jsonify({"error": "Identifiants invalides"}), 401
+        except Exception as e:
+            return jsonify({"error": f"Erreur de base de données : {str(e)}"}), 500
+    else:
+        # GET check connection
+        if 'username' in session:
+            return jsonify({
+                "ok": True,
+                "name": session['username'],
+                "privLevel": session['priv_level']
+            })
+        return jsonify({"ok": False}), 200
+
+@app.route('/api/logout', methods=['GET'])
+def logout():
+    session.clear()
+    return jsonify({"ok": True})
+
+@app.route('/api/db/query', methods=['POST'])
+def query_db():
+    if 'username' not in session:
+        return jsonify({"login": False, "error": "Non connecté"}), 401
+
+    username = session['username']
+    priv_level = session['priv_level']
+    
+    # Lecture des paramètres de requête
+    req = request.json or {}
+    action = req.get('action') or request.args.get('action')
+    table = req.get('table') or request.args.get('table')
+
+    if not action or not table:
+        return jsonify({"error": "Paramètres de requête manquants"}), 400
+
+    # Sécurité : Vérification des tables et actions autorisées
+    # Pour l'instant, on n'autorise que les fonctionnalités Joueurs (priv_level >= 1)
+    if table not in TABLES_ACCESS_PLAYER:
+        return jsonify({"error": f"Accès refusé à la table {table}"}), 403
+
+    allowed_actions = TABLES_ACCESS_PLAYER[table]
+    action_idx = {'SELECT': 0, 'UPDATE': 1, 'INSERT': 2, 'DELETE': 3}.get(action)
+    
+    if action_idx is None or not allowed_actions[action_idx]:
+        return jsonify({"error": f"Action {action} non autorisée sur {table}"}), 403
+
+    # Construction et filtrage SQL sécurisé
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cursor:
+            if action == 'SELECT':
+                fields = req.get('fields', '*')
+                where = req.get('where', '1')
+                orderby = req.get('orderby')
+                limit = req.get('limit', '50')
+                groupby = req.get('groupby')
+
+                # Restriction sur dataquestjson : les joueurs voient toutes les quêtes,
+                # mais nous devons nous assurer de filtrer ou d'injecter des données appropriées
+                sql = f"SELECT {fields} FROM `{table}` WHERE {where}"
+                if groupby:
+                    sql += f" GROUP BY {groupby}"
+                if orderby:
+                    sql += f" ORDER BY {orderby}"
+                if limit:
+                    sql += f" LIMIT {limit}"
+
+                cursor.execute(sql)
+                content = cursor.fetchall()
+
+                # Compter le total
+                count_sql = f"SELECT COUNT(*) as cnt FROM `{table}` WHERE {where}"
+                cursor.execute(count_sql)
+                count_res = cursor.fetchone()
+                content_count = count_res['cnt'] if count_res else len(content)
+
+                return jsonify({
+                    "content": content,
+                    "contentCount": content_count,
+                    "error": None
+                })
+
+            elif action == 'INSERT':
+                # Restriction dataquestjson : on force le CreatorAccount et le niveau 1 du PNJ
+                if table == 'dataquestjson':
+                    fields_list = [f.strip().replace('`', '') for f in req.get('fields', '').split(',')]
+                    
+                    import csv
+                    val_reader = csv.reader([req['values']], quotechar="'", skipinitialspace=True)
+                    values_list = next(val_reader)
+                    
+                    # Ensure CreatorAccount is inserted
+                    if 'CreatorAccount' not in fields_list:
+                        fields_list.append('CreatorAccount')
+                        values_list.append(username)
+                    else:
+                        c_idx = fields_list.index('CreatorAccount')
+                        values_list[c_idx] = username
+                        
+                    # Sanity check/Force NPC level to 1 in GoalsJson if present
+                    if 'GoalsJson' in fields_list:
+                        g_idx = fields_list.index('GoalsJson')
+                        try:
+                            goals = json.loads(values_list[g_idx])
+                            for goal in goals:
+                                if 'Data' in goal:
+                                    if 'TargetLevel' in goal['Data']:
+                                        goal['Data']['TargetLevel'] = 1
+                            values_list[g_idx] = json.dumps(goals)
+                        except:
+                            pass
+                            
+                    req['fields'] = ",".join(f"`{f}`" for f in fields_list)
+                    req['values'] = ",".join("'" + val.replace("'", "''") + "'" for val in values_list)
+
+                # Sécurité table 'mob' : force le niveau 1 et restreint les abus éventuels
+                elif table == 'mob':
+                    fields_list = [f.strip().replace('`', '') for f in req.get('fields', '').split(',')]
+                    import csv
+                    val_reader = csv.reader([req['values']], quotechar="'", skipinitialspace=True)
+                    values_list = next(val_reader)
+
+                    # Forcer le niveau à 1 pour tous les PNJs créés par des joueurs
+                    if 'Level' in fields_list:
+                        l_idx = fields_list.index('Level')
+                        values_list[l_idx] = '1'
+                    else:
+                        fields_list.append('Level')
+                        values_list.append('1')
+
+                    # Forcer la classe par défaut
+                    if 'ClassType' in fields_list:
+                        c_idx = fields_list.index('ClassType')
+                        values_list[c_idx] = 'DOL.GS.GameNPC'
+
+                    req['fields'] = ",".join(f"`{f}`" for f in fields_list)
+                    req['values'] = ",".join("'" + val.replace("'", "''") + "'" for val in values_list)
+
+                # Exécuter l'insertion brute (après vérification basique)
+                fields = req.get('fields')
+                values = req.get('values')
+                sql = f"INSERT INTO `{table}` ({fields}) VALUES ({values})"
+                cursor.execute(sql)
+                conn.commit()
+
+                return jsonify({
+                    "contentCount": cursor.rowcount,
+                    "error": None
+                })
+
+            elif action == 'UPDATE':
+                upfields = req.get('upfields')
+                if upfields:
+                    upfields = upfields.replace('\\`', '`').replace('\\\\`', '`')
+                where = req.get('where', '0')
+
+                # Sécurité dataquestjson : un joueur ne peut modifier que ses propres quêtes
+                if table == 'dataquestjson':
+                    # On ajoute la clause de sécurité au WHERE
+                    where = f"({where}) AND CreatorAccount = '{username}'"
+
+                sql = f"UPDATE `{table}` SET {upfields} WHERE {where}"
+                print("DEBUG UPDATE SQL:", sql, flush=True)
+                try:
+                    cursor.execute(sql)
+                    conn.commit()
+                except Exception as sql_err:
+                    print("DEBUG UPDATE SQL ERROR:", sql_err, flush=True)
+                    raise sql_err
+
+                return jsonify({
+                    "contentCount": cursor.rowcount,
+                    "error": None
+                })
+
+            elif action == 'DELETE':
+                where = req.get('where', '0')
+
+                # Sécurité dataquestjson : un joueur ne peut supprimer que ses propres quêtes
+                if table == 'dataquestjson':
+                    where = f"({where}) AND CreatorAccount = '{username}'"
+
+                sql = f"DELETE FROM `{table}` WHERE {where}"
+                cursor.execute(sql)
+                conn.commit()
+
+                return jsonify({
+                    "contentCount": cursor.rowcount,
+                    "error": None
+                })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+
+# Servir le Frontend
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
+
+if __name__ == '__main__':
+    # Écoute sur toutes les interfaces pour être accessible depuis le réseau Docker
+    app.run(host='0.0.0.0', port=80)
