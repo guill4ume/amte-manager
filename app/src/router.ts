@@ -109,6 +109,20 @@ export const routes: RouteRecordRaw[] = [
 	},
 
 	{
+		name: "mobs",
+		path: "/mob",
+		component: PageRoute,
+		redirect: "/mob/",
+		children: [
+			{
+				name: "mobList",
+				path: "",
+				component: () => import("@/views/Mobs.vue"),
+			},
+		],
+	},
+
+	{
 		name: "quests",
 		path: "/quest",
 		component: PageRoute,

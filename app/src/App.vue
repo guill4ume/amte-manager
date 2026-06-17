@@ -150,6 +150,7 @@ function renderError(error: any) {
 				</template>
 
 				<v-list-subheader title="Player Quests" />
+				<v-list-item :to="{ name: 'mobList' }" title="PNJs/NPCs" prepend-icon="mdi-account-edit" />
 				<v-list-item :to="{ name: 'quests' }" title="Quests" prepend-icon="mdi-map-marker-radius" />
 
 				<template v-if="user && user.privLevel >= 2">

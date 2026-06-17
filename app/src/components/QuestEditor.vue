@@ -24,59 +24,6 @@ const quest = ref<QuestDB>();
 const goalType = ref("DOL.GS.Quests.InteractGoal");
 const tabPage = ref("edit");
 
-// NPC Creation dialog state
-const npcCreateOpen = ref(false);
-const npcCreateLoading = ref(false);
-const newNpc = ref({
-	Name: "",
-	Region: 50,
-	X: 0,
-	Y: 0,
-	Z: 0,
-	Heading: 0,
-	Model: 10,
-});
-
-async function createNpc() {
-	if (!newNpc.value.Name) {
-		alert("Please enter a name for the NPC");
-		return;
-	}
-	if (!quest.value) return;
-
-	try {
-		npcCreateLoading.value = true;
-		const npcData = {
-			Name: newNpc.value.Name,
-			Region: newNpc.value.Region,
-			X: newNpc.value.X,
-			Y: newNpc.value.Y,
-			Z: newNpc.value.Z,
-			Heading: newNpc.value.Heading,
-			Model: newNpc.value.Model,
-			ClassType: "DOL.GS.GameNPC",
-			Level: 1, // forced level 1 for player-created NPCs
-			Size: 50,
-			Guild: "",
-			Flags: 0,
-			NPCTemplateID: -1,
-		};
-
-		// Insert the new NPC in the 'mob' table
-		await DB.insert("mob", npcData);
-
-		// Select this new NPC for the quest
-		quest.value.db.NpcName = newNpc.value.Name;
-		quest.value.db.NpcRegion = newNpc.value.Region;
-
-		npcCreateOpen.value = false;
-		alert(`NPC '${newNpc.value.Name}' created successfully!`);
-	} catch (err) {
-		alert(`Error creating NPC: ${err}`);
-	} finally {
-		npcCreateLoading.value = false;
-	}
-}
 
 const allowedClasses = computed({
 	get: () =>
@@ -259,28 +206,7 @@ const theme = useTheme();
 								@select="(name, region, _npc) => { quest!.db.NpcRegion = region; quest!.db.NpcName = name; }"
 								:search-default="quest!.db.NpcName"
 							/>
-							<v-dialog v-model="npcCreateOpen" width="500">
-								<template v-slot:activator="{ props }">
-									<v-btn v-bind="props" icon="mdi-plus" density="compact" color="success" class="ml-1" title="Create a new NPC for this quest"></v-btn>
-								</template>
-								<v-card>
-									<v-card-title>Create a New NPC</v-card-title>
-									<v-card-text>
-										<v-text-field v-model="newNpc.Name" label="Name" required class="mb-2" />
-										<v-text-field v-model.number="newNpc.Region" type="number" label="Region ID" required class="mb-2" />
-										<v-text-field v-model.number="newNpc.X" type="number" label="X Coordinate" required class="mb-2" />
-										<v-text-field v-model.number="newNpc.Y" type="number" label="Y Coordinate" required class="mb-2" />
-										<v-text-field v-model.number="newNpc.Z" type="number" label="Z Coordinate" required class="mb-2" />
-										<v-text-field v-model.number="newNpc.Heading" type="number" label="Heading" required class="mb-2" />
-										<v-text-field v-model.number="newNpc.Model" type="number" label="Model ID" required class="mb-2" />
-									</v-card-text>
-									<v-card-actions>
-										<v-spacer />
-										<v-btn variant="text" @click="npcCreateOpen = false">Cancel</v-btn>
-										<v-btn color="primary" @click="createNpc" :loading="npcCreateLoading">Create</v-btn>
-									</v-card-actions>
-								</v-card>
-							</v-dialog>
+
 						</v-col>
 						<v-col cols="1">
 							<v-text-field type="number" v-model="quest.db.MinLevel" label="MinLevel" hide-details />
