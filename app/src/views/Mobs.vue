@@ -52,7 +52,7 @@ const page = ref(1);
 const sortBy = ref<SortItem[]>([{ key: "Mob_ID", order: "desc" }]);
 
 const form = ref({
-	Mob_ID: null as number | null,
+	Mob_ID: null as string | null,
 	Name: "",
 	Region: 51,
 	X: 0,
@@ -112,8 +112,8 @@ function latLngToDaoc(coord: LatLng) {
 const load = debounce(async () => {
 	loading.value = true;
 	try {
-		// Filter ONLY Region 51 and player-created NPCs (NPCTemplateID = -1)
-		let where = "Region = 51 AND NPCTemplateID = -1";
+		// Filter ONLY Region 51 and player-created NPCs (NPCTemplateID = -99)
+		let where = "Region = 51 AND NPCTemplateID = -99";
 		if (search.value) {
 			const likeValue = search.value.replace(/'/g, "''");
 			where += ` AND (Name like '%${likeValue}%' OR Guild like '%${likeValue}%')`;
@@ -337,11 +337,11 @@ async function saveNpc() {
 			Size: 50,
 			Guild: form.value.Guild,
 			Flags: 0,
-			NPCTemplateID: -1,
+			NPCTemplateID: -99,
 		};
 
 		if (isEditing.value && form.value.Mob_ID) {
-			await DB.update("mob", npcData, `Mob_ID = ${form.value.Mob_ID}`);
+			await DB.update("mob", npcData, `Mob_ID = '${form.value.Mob_ID}'`);
 		} else {
 			await DB.insert("mob", npcData);
 		}
@@ -361,7 +361,7 @@ async function removeNpc(npc: any) {
 	}
 	loading.value = true;
 	try {
-		await DB.delete("mob", `Mob_ID = ${npc.Mob_ID}`);
+		await DB.delete("mob", `Mob_ID = '${npc.Mob_ID}'`);
 		load();
 	} catch (err) {
 		alert(`Error deleting NPC: ${err}`);

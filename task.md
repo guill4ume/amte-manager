@@ -24,4 +24,6 @@
 - `[x]` Implémenter le mécanisme d'auto-destruction (14 jours maximum / 5 minutes test) dans le code C# du PNJ
 
 ## Phase 5 : Tests & Validation
+- `[x]` Isoler et identifier de manière unique les PNJs créés par les joueurs en base (NPCTemplateID = -99 au lieu de -1)
+- `[x]` Intégrer les fichiers NavMesh et l'ajustement automatique de la hauteur Z sur le GameServer C#
 - `[ ]` Tester le flux complet : création d'une quête sur l'interface -> sauvegarde DB -> spawn du PNJ -> réalisation en jeu -> auto-destruction

@@ -73,3 +73,97 @@ Nous avons grandement amélioré l'expérience utilisateur dans l'interface de c
      ```
    * **Débogage** : Ajout de logs console de débogage (`print(sql)`) dans `server.py` pour capturer la structure SQL exacte en cas de futures erreurs.
 
+---
+
+## Phase 5 : Tests, Recette & Gestion des PNJs - Isolation des PNJs créés par les joueurs
+
+### 1. Frontend Vue (`Mobs.vue`)
+- **Filtre de chargement** : La requête de chargement dans le composant [Mobs.vue](file:///c:/OpenDAOC_server/ProjetsAnnexes/AmteManagerV2/app/src/views/Mobs.vue) a été modifiée pour filtrer exclusivement les PNJs ayant `Region = 51 AND NPCTemplateID = -99` (au lieu de `-1`). Cela permet d'exclure les ~1364 PNJs officiels de la Région 51 présents dans la base de données standard de DAoC qui possèdent également `NPCTemplateID = -1` par défaut.
+- **Création/Modification de PNJ** : Lors de la sauvegarde (insertion et mise à jour) d'un PNJ dans la méthode `saveNpc`, la valeur du champ `NPCTemplateID` injectée est désormais `-99`.
+- **Validation du marqueur temporaire orange** : Le comportement interactif (clic pour placer et drag-and-drop du marqueur orange) n'a pas été affecté car il est géré entièrement au niveau du client Leaflet.
+
+### Protocole de Test
+
+#### Étape 1 : Reconstruire et démarrer l'application
+1. Dans un terminal, rendez-vous dans le répertoire d'intégration d'OpenDAoC-SPB :
+   ```bash
+   cd C:\OpenDAOC_server\ProjetsAnnexes\OpenDAoC-SPB
+   ```
+2. Reconstruisez et démarrez le conteneur `amtemanager` :
+   ```bash
+   docker compose up -d --build amtemanager
+   ```
+3. Videz le cache de votre navigateur (`Ctrl + F5`) pour forcer le chargement de la nouvelle version du frontend Vue.
+
+#### Étape 2 : Vérification du chargement initial
+1. Ouvrez l'interface d'AmteManagerV2 et accédez à l'onglet **PNJs/NPCs**.
+2. Vérifiez que la liste des PNJs à droite est vide (ou ne contient que vos précédents tests s'ils avaient `-99` en template, mais ne doit pas afficher les 1364 PNJs officiels).
+3. Vérifiez qu'aucun marqueur bleu (représentant les PNJs existants) n'est affiché sur la carte d'Avalon à gauche.
+
+#### Étape 3 : Création d'un PNJ avec l'interface interactive
+1. Cliquez sur **New PNJ/NPC**.
+2. Vérifiez que le marqueur temporaire orange s'affiche sur la carte.
+3. Cliquez à un autre endroit de la carte ou glissez-déposez le marqueur orange. Vérifiez que les coordonnées **X** et **Y** dans le formulaire à droite se mettent à jour automatiquement.
+4. Remplissez le nom (ex: `Garde Test 99`) et un titre/guild, puis cliquez sur **Place NPC**.
+
+#### Étape 4 : Validation en base de données et dans la liste
+1. Exécutez une requête SQL ou utilisez votre éditeur de base de données pour vérifier la table `mob` :
+   ```sql
+   SELECT Mob_ID, Name, NPCTemplateID, Region, X, Y FROM mob WHERE NPCTemplateID = -99;
+   ```
+   *Vérification attendue : Le nouveau PNJ doit y figurer avec `NPCTemplateID = -99`.*
+2. Vérifiez que le nouveau PNJ apparaît désormais dans le tableau à droite.
+3. Vérifiez qu'un marqueur bleu est présent sur la carte de gauche à la position spécifiée.
+
+#### Étape 5 : Validation de l'édition
+1. Cliquez sur l'icône de modification (crayon) à côté du PNJ dans le tableau.
+2. Modifiez son nom ou sa guilde, puis cliquez sur **Update NPC**.
+3. Exécutez à nouveau la requête SQL pour vérifier que les modifications ont été appliquées et que la valeur de `NPCTemplateID` est restée à `-99`.
+
+---
+
+### Résolution du bug de création (Mob_ID manquant)
+- **Problème** : Lors de la création d'un PNJ, l'exécution SQL échouait avec une erreur 500 car le champ clé primaire `Mob_ID` (qui est un UUID string dans DAoC) n'était pas fourni et n'a pas de valeur par défaut en base de données.
+- **Solution** : 
+  - Mise à jour du backend Flask (`server.py`) pour générer automatiquement un UUID4 unique si `Mob_ID` est absent de l'insertion.
+  - Correction de `Mobs.vue` pour typer `Mob_ID` en `string | null` et ajout des guillemets simples SQL dans les clauses `WHERE` pour les requêtes `UPDATE` et `DELETE` afin de supporter les UUID strings.
+
+---
+
+### Problématique de la hauteur Z des PNJs
+- **Observation** : Les PNJs créés avec une hauteur par défaut de `Z = 1800` peuvent apparaître sous le sol ou dans le vide en jeu, les rendant invisibles et inciblables.
+- **Solution (NavMesh)** :
+  1. **Montage Docker Compose** : Les fichiers `.nav` présents dans `FixDivers/NavMesh` ont été montés en lecture seule dans le conteneur du GameServer sous `/app/pathing` :
+     ```yaml
+     # docker-compose.yml
+     - ../FixDivers/NavMesh:/app/pathing:ro
+     ```
+  2. **Code C# (GameServer)** : Dans [GameNPC.cs](file:///c:/OpenDAOC_server/ProjetsAnnexes/OpenDAoC-SPB/GameServer/gameobjects/GameNPC.cs#L2064-L2078), lors de l'ajout au monde d'un PNJ joueur (`IsPlayerQuestNPC == true`), le serveur interroge désormais le NavMesh local pour caler l'altitude `Z` au niveau du sol réel avec une tolérance verticale de 16 000 unités :
+     ```csharp
+     if (IsPlayerQuestNPC)
+     {
+         if (CurrentZone != null && PathingMgr.Instance != null && PathingMgr.Instance.HasNavmesh(CurrentZone))
+         {
+             var point = PathingMgr.Instance.GetClosestPointAsync(CurrentZone, new System.Numerics.Vector3(X, Y, Z), 500f, 500f, 16000f);
+             if (point.HasValue)
+             {
+                 Z = (int)point.Value.Z;
+             }
+         }
+     }
+     ```
+
+### Protocole de Test - Validation en jeu
+1. **Création du PNJ** : Connectez-vous sur AmteManagerV2 (après un `Ctrl + F5` pour rafraîchir le cache) et créez un PNJ dans la Région 51 (Avalon) via la carte interactive avec les valeurs de hauteur par défaut (`Z = 1800`).
+2. **Vérification en base de données** : Le PNJ doit être présent dans la table `mob` avec `NPCTemplateID = -99` et posséder un `Mob_ID` sous format UUID.
+3. **Vérification en jeu** : Rendez-vous aux coordonnées X/Y en jeu avec votre personnage. Le PNJ doit être visible et correctement positionné au niveau du sol (son Z aura été corrigé de façon dynamique par le serveur lors de son spawn).
+4. **Validation de l'auto-destruction** : Vérifiez que le PNJ disparaît de lui-même après le délai défini (14 jours ou 5 minutes en mode test).
+
+---
+
+### Résolution du bug de permission UPDATE (Erreur 403)
+- **Problème** : Lors de la modification (`UPDATE`) ou de la suppression (`DELETE`) d'un PNJ créé par l'interface autonome, le backend Flask retournait une erreur `403` (Forbidden). Les droits d'accès des joueurs (`TABLES_ACCESS_PLAYER`) sur la table `mob` étaient configurés en lecture + insertion uniquement.
+- **Solution** :
+  - Mise à jour des permissions dans `server.py` pour accorder les droits d'accès `UPDATE` et `DELETE` aux joueurs sur la table `mob`.
+  - Intégration d'une restriction de sécurité stricte dans les requêtes d'action `UPDATE` et `DELETE` sur la table `mob` pour s'assurer qu'un joueur ne peut modifier ou supprimer que ses propres PNJs créés (ceux ayant `NPCTemplateID = -99`). Les PNJs officiels de la table restants ainsi totalement protégés de toute altération par les joueurs.
+

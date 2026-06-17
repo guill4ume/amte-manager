@@ -42,7 +42,7 @@ TABLES_ACCESS_PLAYER = {
     'npctemplate':               (True, False, False, False), # Lecture seule pour auto-complétion
     'itemtemplate':              (True, False, False, False), # Lecture seule pour auto-complétion
     'race':                      (True, False, False, False), # Lecture seule
-    'mob':                       (True, False, True, False), # Lecture + Insertion pour permettre la création de PNJ de quêtes
+    'mob':                       (True, True, True, True), # Droit complet pour gérer ses propres PNJs créés
     'dolcharacters':             (True, False, False, False), # Lecture seule
     'serverstats':               (True, False, False, False), # Lecture seule pour le dashboard
     'guild':                     (True, False, False, False), # Lecture seule pour l'affichage des guildes
@@ -207,6 +207,12 @@ def query_db():
                     val_reader = csv.reader([req['values']], quotechar="'", skipinitialspace=True)
                     values_list = next(val_reader)
 
+                    # Générer un Mob_ID unique (UUID) s'il n'est pas présent
+                    if 'Mob_ID' not in fields_list:
+                        import uuid
+                        fields_list.append('Mob_ID')
+                        values_list.append(str(uuid.uuid4()))
+
                     # Forcer le niveau à 1 pour tous les PNJs créés par des joueurs
                     if 'Level' in fields_list:
                         l_idx = fields_list.index('Level')
@@ -227,8 +233,13 @@ def query_db():
                 fields = req.get('fields')
                 values = req.get('values')
                 sql = f"INSERT INTO `{table}` ({fields}) VALUES ({values})"
-                cursor.execute(sql)
-                conn.commit()
+                print("DEBUG INSERT SQL:", sql, flush=True)
+                try:
+                    cursor.execute(sql)
+                    conn.commit()
+                except Exception as sql_err:
+                    print("DEBUG INSERT SQL ERROR:", sql_err, flush=True)
+                    raise sql_err
 
                 return jsonify({
                     "contentCount": cursor.rowcount,
@@ -245,6 +256,10 @@ def query_db():
                 if table == 'dataquestjson':
                     # On ajoute la clause de sécurité au WHERE
                     where = f"({where}) AND CreatorAccount = '{username}'"
+
+                # Sécurité mob : un joueur ne peut modifier que ses propres PNJs (NPCTemplateID = -99)
+                elif table == 'mob':
+                    where = f"({where}) AND NPCTemplateID = -99"
 
                 sql = f"UPDATE `{table}` SET {upfields} WHERE {where}"
                 print("DEBUG UPDATE SQL:", sql, flush=True)
@@ -266,6 +281,10 @@ def query_db():
                 # Sécurité dataquestjson : un joueur ne peut supprimer que ses propres quêtes
                 if table == 'dataquestjson':
                     where = f"({where}) AND CreatorAccount = '{username}'"
+
+                # Sécurité mob : un joueur ne peut supprimer que ses propres PNJs (NPCTemplateID = -99)
+                elif table == 'mob':
+                    where = f"({where}) AND NPCTemplateID = -99"
 
                 sql = f"DELETE FROM `{table}` WHERE {where}"
                 cursor.execute(sql)
