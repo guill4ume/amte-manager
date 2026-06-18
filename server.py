@@ -226,6 +226,16 @@ def query_db():
                         c_idx = fields_list.index('ClassType')
                         values_list[c_idx] = 'DOL.GS.GameNPC'
 
+                    # Forcer la date de mise à jour au moment présent (UTC) pour éviter l'expiration immédiate en jeu
+                    import datetime
+                    now_str = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+                    if 'LastTimeRowUpdated' in fields_list:
+                        u_idx = fields_list.index('LastTimeRowUpdated')
+                        values_list[u_idx] = now_str
+                    else:
+                        fields_list.append('LastTimeRowUpdated')
+                        values_list.append(now_str)
+
                     req['fields'] = ",".join(f"`{f}`" for f in fields_list)
                     req['values'] = ",".join("'" + val.replace("'", "''") + "'" for val in values_list)
 
