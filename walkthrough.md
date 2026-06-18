@@ -167,3 +167,22 @@ Nous avons grandement amélioré l'expérience utilisateur dans l'interface de c
   - Mise à jour des permissions dans `server.py` pour accorder les droits d'accès `UPDATE` et `DELETE` aux joueurs sur la table `mob`.
   - Intégration d'une restriction de sécurité stricte dans les requêtes d'action `UPDATE` et `DELETE` sur la table `mob` pour s'assurer qu'un joueur ne peut modifier ou supprimer que ses propres PNJs créés (ceux ayant `NPCTemplateID = -99`). Les PNJs officiels de la table restants ainsi totalement protégés de toute altération par les joueurs.
 
+---
+
+### Phase 6 : Synchronisation en temps réel & Correctif Temporel (18 Juin 2026)
+
+#### 1. Correction de l'auto-destruction immédiate (`LastTimeRowUpdated`)
+- **Problème** : Les PNJs créés via l'interface web n'apparaissaient pas en jeu. La table `mob` utilisait la valeur par défaut `'2000-01-01 00:00:00'` pour `LastTimeRowUpdated`, ce qui faisait calculer au serveur un temps écoulé de 26 ans, déclenchant l'auto-destruction immédiate du PNJ dans `AddToWorld()`.
+- **Solution** : Mise à jour de `server.py` pour forcer automatiquement le champ `LastTimeRowUpdated` à la date et l'heure actuelles (UTC) lors de l'insertion d'un PNJ.
+
+#### 2. Synchronisation et rafraîchissement temps réel (Webhooks API)
+- **Objectif** : Permettre aux joueurs de voir instantanément leurs ajouts, modifications ou suppressions de PNJs et de Quêtes en jeu sans nécessiter de redémarrage serveur.
+- **API C# (GameServer)** :
+  - Ajout de [AmteManagerListener.cs](file:///c:/OpenDAOC_server/ProjetsAnnexes/OpenDAoC-SPB/GameServer/scripts/custom/Managers/AmteManagerListener.cs) qui lance un écouteur HTTP asynchrone sur le port interne `9000` au démarrage.
+  - Rechargement à chaud des PNJs (`/reload_npc`) : l'API retire l'ancien PNJ de la RAM s'il existe, et charge et fait spawn dynamiquement le nouveau PNJ (avec son Z-Snapping) si l'action est `insert` ou `update`.
+  - Rechargement à chaud des Quêtes (`/reload_quests`) : l'API appelle `DataQuestJsonMgr.ReloadQuests()` pour recharger à chaud toutes les quêtes et les associer aux PNJs en jeu.
+- **Intégration Backend Python (`server.py`)** :
+  - Implémentation d'une fonction d'appel HTTP asynchrone non bloquante `notify_gameserver_async`.
+  - Intégration des webhooks à l'issue de chaque transaction SQL réussie sur les tables `mob` et `dataquestjson`.
+
+
