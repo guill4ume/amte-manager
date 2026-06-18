@@ -185,4 +185,9 @@ Nous avons grandement amélioré l'expérience utilisateur dans l'interface de c
   - Implémentation d'une fonction d'appel HTTP asynchrone non bloquante `notify_gameserver_async`.
   - Intégration des webhooks à l'issue de chaque transaction SQL réussie sur les tables `mob` et `dataquestjson`.
 
+#### 3. Résolution du crash dynamique de chargement des quêtes (RuntimeBinderException)
+- **Problème** : Lors de la sauvegarde ou de la mise à jour d'une quête via le manager, la notification HTTP `/reload_quests` était bien reçue par le serveur de jeu, mais provoquait une exception `Microsoft.CSharp.RuntimeBinder.RuntimeBinderException: '<>f__AnonymousType4<...>' does not contain a definition for 'MessageStarted'`. Cela était dû au fait que l'objet anonyme instancié pour la fin de la quête (`EndGoal`) dans [DataQuestJson.cs](file:///c:/OpenDAOC_server/ProjetsAnnexes/OpenDAoC-SPB/GameServer/quests/JsonQuests/DataQuestJson.cs) ne déclarait pas les champs requis par le constructeur de la classe de base `DataQuestJsonGoal` (comme `MessageStarted`, `MessageAborted`, `MessageDone`, `MessageCompleted`, et `RewardBreamorFaction`).
+- **Solution** : Ajout de ces propriétés à valeur `null` (avec conversion explicite en type `string`) dans la déclaration de l'objet anonyme d'instanciation de l'objet `EndGoal` dans [DataQuestJson.cs](file:///c:/OpenDAOC_server/ProjetsAnnexes/OpenDAoC-SPB/GameServer/quests/JsonQuests/DataQuestJson.cs#L274-L283). Cela permet d'éviter l'erreur d'exécution dynamique en C# et de charger la quête avec succès en jeu en temps réel.
+
+
 

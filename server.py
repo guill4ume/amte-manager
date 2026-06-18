@@ -35,6 +35,21 @@ def crypt_password(password: str) -> str:
     parts = [f"{b:X}" for b in md5_hash]
     return "##" + "".join(parts)
 
+import threading
+import urllib.request
+import re
+
+def notify_gameserver_async(url):
+    def run():
+        try:
+            with urllib.request.urlopen(url, timeout=3) as resp:
+                resp.read()
+        except Exception as e:
+            print(f"Gameserver notification failed: {e}", flush=True)
+            
+    threading.Thread(target=run, daemon=True).start()
+
+
 # Tables autorisées pour les requêtes (S, U, I, D)
 # Pour les joueurs, on restreint fortement les droits
 TABLES_ACCESS_PLAYER = {
@@ -69,6 +84,7 @@ def login():
             if account:
                 hashed_input = crypt_password(password)
                 db_hash = account['Password']
+                print(f"DEBUG LOGIN - User: {username}, Pass Len: {len(password)}, Hashed: {hashed_input}, DB Hash: {db_hash}", flush=True)
                 
                 # Vérification
                 is_correct = False
@@ -247,6 +263,17 @@ def query_db():
                 try:
                     cursor.execute(sql)
                     conn.commit()
+
+                    # Notification de rafraîchissement au GameServer
+                    if table == 'mob':
+                        try:
+                            m_idx = fields_list.index('Mob_ID')
+                            mob_id = values_list[m_idx]
+                            notify_gameserver_async(f"http://gameserver:9000/reload_npc?action=insert&mob_id={mob_id}")
+                        except Exception as n_err:
+                            print("Failed to notify gameserver for INSERT:", n_err, flush=True)
+                    elif table == 'dataquestjson':
+                        notify_gameserver_async("http://gameserver:9000/reload_quests")
                 except Exception as sql_err:
                     print("DEBUG INSERT SQL ERROR:", sql_err, flush=True)
                     raise sql_err
@@ -276,6 +303,18 @@ def query_db():
                 try:
                     cursor.execute(sql)
                     conn.commit()
+
+                    # Notification de rafraîchissement au GameServer
+                    if table == 'mob':
+                        try:
+                            uuid_match = re.search(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", where, re.I)
+                            if uuid_match:
+                                mob_id = uuid_match.group(0)
+                                notify_gameserver_async(f"http://gameserver:9000/reload_npc?action=update&mob_id={mob_id}")
+                        except Exception as n_err:
+                            print("Failed to notify gameserver for UPDATE:", n_err, flush=True)
+                    elif table == 'dataquestjson':
+                        notify_gameserver_async("http://gameserver:9000/reload_quests")
                 except Exception as sql_err:
                     print("DEBUG UPDATE SQL ERROR:", sql_err, flush=True)
                     raise sql_err
@@ -299,6 +338,18 @@ def query_db():
                 sql = f"DELETE FROM `{table}` WHERE {where}"
                 cursor.execute(sql)
                 conn.commit()
+
+                # Notification de rafraîchissement au GameServer
+                if table == 'mob':
+                    try:
+                        uuid_match = re.search(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", where, re.I)
+                        if uuid_match:
+                            mob_id = uuid_match.group(0)
+                            notify_gameserver_async(f"http://gameserver:9000/reload_npc?action=delete&mob_id={mob_id}")
+                    except Exception as n_err:
+                        print("Failed to notify gameserver for DELETE:", n_err, flush=True)
+                elif table == 'dataquestjson':
+                    notify_gameserver_async("http://gameserver:9000/reload_quests")
 
                 return jsonify({
                     "contentCount": cursor.rowcount,
