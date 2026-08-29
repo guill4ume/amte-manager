@@ -23,7 +23,7 @@ Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'A
 ### 📜 1.2 Menace Sylvestre (`GothwaiteBranchesDaily`)
 - **PNJ Donneur** : `Capitaine de Gothwaite` (Guilde: *Le Pacte Innomé*)
 - **Position** : Région 51 — `X: 534084, Y: 549425, Z: 4928, Heading: 3390`
-- **Type** : Daily PvE | **Niveaux** : 3 à 60
+- **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 8 `vieille branche`
 - **Zone de Chasse** : Chemins boisés à l'ouest de Caer Gothwaite
 - **Dialogue d'Intro** : *"Des végétaux animés par une magie obscure bloquent les chemins au nord-ouest. Ces vieilles branches s'en prennent aux patrouilles isolées. Pouvez-vous [abattre les branches] pour dégager le passage ?"*
@@ -39,7 +39,7 @@ Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'A
 ### 📜 2.1 La Chasse aux Félins (`CorboisLynxDaily`)
 - **PNJ Donneur** : `Borin Corbois` (Guilde: *Baronnie Corbois*)
 - **Position** : Région 51 — `X: 534119, Y: 549681, Z: 4928, Heading: 3039`
-- **Type** : Daily PvE | **Niveaux** : 2 à 60
+- **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 10 `lynx sauvage`
 - **Zone de Chasse** : Collines à l'ouest de Caer Gothwaite
 - **Dialogue d'Intro** : *"Les lynx sauvages attaquent nos messagers et nos porteurs sur les sentiers. La Baronnie Corbois récompense quiconque aide à sécuriser les routes de commerce. Voulez-vous [chasser les lynx] pour protéger notre domaine ?"*
@@ -53,7 +53,7 @@ Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'A
 ### 📜 2.2 Ravitaillement de Gothwaite (`CorboisCochonsDaily`)
 - **PNJ Donneur** : `Borin Corbois` (Guilde: *Baronnie Corbois*)
 - **Position** : Région 51 — `X: 534119, Y: 549681, Z: 4928, Heading: 3039`
-- **Type** : Daily PvE | **Niveaux** : 4 à 60
+- **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 10 `cochon sauvage`
 - **Zone de Chasse** : Taillis au sud-ouest de Caer Gothwaite
 - **Dialogue d'Intro** : *"Les cuisines du fort manquent de vivres frais et de viande pour les gardes. Les cochons sauvages pullulent dans les taillis au sud-ouest. Pouvez-vous [chasser les cochons] pour ravitailler nos réserves ?"*
@@ -69,7 +69,7 @@ Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'A
 ### 📜 3.1 Toiles et Carapaces (`KliomoAraigneesDaily`)
 - **PNJ Donneur** : `Kliomo` (Guilde: *Forgeron d'âme tranchante*)
 - **Position** : Région 51 — `X: 535086, Y: 550899, Z: 4863, Heading: 1989`
-- **Type** : Daily PvE | **Niveaux** : 6 à 60
+- **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 10 `araneae`
 - **Zone de Chasse** : Vallée au sud-ouest
 - **Dialogue d'Intro** : *"J'ai besoin de soie et de chitine pour tremper et affiner le fil de mes lames. Les araneae tissent des toiles d'une résistance remarquable dans la vallée. Voulez-vous [traquer les araignées] pour mon atelier ?"*
@@ -83,7 +83,7 @@ Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'A
 ### 📜 3.2 Cuirasses de Scarabée (`MardonaScarabeDaily`)
 - **PNJ Donneur** : `Mardona` (Guilde: *Forgeron d'âme perforatrice*)
 - **Position** : Région 51 — `X: 535168, Y: 550879, Z: 4863, Heading: 1830`
-- **Type** : Daily PvE | **Niveaux** : 8 à 60
+- **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 10 `scarabe`
 - **Zone de Chasse** : Plaine au sud-est de Caer Gothwaite
 - **Dialogue d'Intro** : *"Les scarabées géants possèdent des carapaces parfaites pour renforcer nos pointes perforantes. Leurs plaques dorsales résistent aux impacts les plus rudes. Pouvez-vous [chasser les scarabées] dans la plaine ?"*
@@ -99,7 +99,7 @@ Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'A
 ### 📜 4.1 Dents de Sabre du Sud (`HargoldPredateursDaily`)
 - **PNJ Donneur** : `Hargold` (Guilde: *Mercenaire*)
 - **Position** : Région 51 — `X: 535481, Y: 541402, Z: 3278, Heading: 3916`
-- **Type** : Daily PvE | **Niveaux** : 7 à 60
+- **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 10 `machairodonte`
 - **Zone de Chasse** : Plateaux rocheux au sud-est du camp
 - **Dialogue d'Intro** : *"Les machairodontes rôdent près de notre camp et attaquent les convois. Ces bêtes aux crocs immenses ne craignent ni le fer ni le feu. Voulez-vous [chasser les prédateurs] pour sécuriser la route ?"*
@@ -113,7 +113,7 @@ Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'A
 ### 📜 4.2 Traque de la Meute (`HargoldLoupsDaily`)
 - **PNJ Donneur** : `Hargold` (Guilde: *Mercenaire*)
 - **Position** : Région 51 — `X: 535481, Y: 541402, Z: 3278, Heading: 3916`
-- **Type** : Daily PvE | **Niveaux** : 10 à 60
+- **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 10 `loup`
 - **Zone de Chasse** : Collines méridionales
 - **Dialogue d'Intro** : *"Une meute de loups agressifs encercle nos patrouilles et égorge les montures. Leurs hurlements résonnent chaque nuit dans les contreforts sud. Pouvez-vous [traquer la meute] et rétablir le calme ?"*

@@ -24,13 +24,13 @@ Ce document assure le suivi centralisé de tous les chantiers de quêtes : lots 
 | Classe C# | PNJ Donneur | Min Lvl | Max Lvl | Cible & Quota | Titre | Statut |
 | :--- | :--- | :---: | :---: | :--- | :--- | :---: |
 | `GothwaiteRatsDaily` | **Capitaine de Gothwaite** | 1 | 60 | 10 `rat des neiges` | `[Daily] Nettoyage des Remparts` | ✅ Actif |
-| `CorboisLynxDaily` | **Borin Corbois** | 2 | 60 | 10 `lynx sauvage` | `[Daily] La Chasse aux Felins` | ✅ Actif |
-| `GothwaiteBranchesDaily` | **Capitaine de Gothwaite** | 3 | 60 | 8 `vieille branche` | `[Daily] Menace Sylvestre` | ✅ Actif |
-| `CorboisCochonsDaily` | **Borin Corbois** | 4 | 60 | 10 `cochon sauvage` | `[Daily] Ravitaillement de Gothwaite` | ✅ Actif |
-| `KliomoAraigneesDaily` | **Kliomo** | 6 | 60 | 10 `araneae` | `[Daily] Toiles et Carapaces` | ✅ Actif |
-| `HargoldPredateursDaily` | **Hargold** | 7 | 60 | 10 `machairodonte` | `[Daily] Dents de Sabre du Sud` | ✅ Actif |
-| `MardonaScarabeDaily` | **Mardona** | 8 | 60 | 10 `scarabe` | `[Daily] Cuirasses de Scarabee` | ✅ Actif |
-| `HargoldLoupsDaily` | **Hargold** | 10 | 60 | 10 `loup` | `[Daily] Traque de la Meute` | ✅ Actif |
+| `CorboisLynxDaily` | **Borin Corbois** | 1 | 60 | 10 `lynx sauvage` | `[Daily] La Chasse aux Felins` | ✅ Actif |
+| `GothwaiteBranchesDaily` | **Capitaine de Gothwaite** | 1 | 60 | 8 `vieille branche` | `[Daily] Menace Sylvestre` | ✅ Actif |
+| `CorboisCochonsDaily` | **Borin Corbois** | 1 | 60 | 10 `cochon sauvage` | `[Daily] Ravitaillement de Gothwaite` | ✅ Actif |
+| `KliomoAraigneesDaily` | **Kliomo** | 1 | 60 | 10 `araneae` | `[Daily] Toiles et Carapaces` | ✅ Actif |
+| `HargoldPredateursDaily` | **Hargold** | 1 | 60 | 10 `machairodonte` | `[Daily] Dents de Sabre du Sud` | ✅ Actif |
+| `MardonaScarabeDaily` | **Mardona** | 1 | 60 | 10 `scarabe` | `[Daily] Cuirasses de Scarabee` | ✅ Actif |
+| `HargoldLoupsDaily` | **Hargold** | 1 | 60 | 10 `loup` | `[Daily] Traque de la Meute` | ✅ Actif |
 
 ### 🛡️ 2. Quêtes de Faction des Paladins de Tyr
 
