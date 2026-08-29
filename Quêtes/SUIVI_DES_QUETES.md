@@ -19,28 +19,28 @@ Ce document assure le suivi centralisé de tous les chantiers de quêtes : lots 
 
 ## 📋 Détail des Quêtes Actives en Région 51 (Avalon)
 
-### 🏰 1. Quêtes de Caer Gothwaite (Lot 2)
+### 🏰 1. Quêtes de Caer Gothwaite & Village (Lot 2)
 
-| Classe C# | PNJ Donneur | Min Lvl | Max Lvl | Cible & Quota | Titre | Statut In-Game |
-| :--- | :--- | :---: | :---: | :--- | :--- | :---: |
-| `HargoldLoupsDaily` | **Hargold** | 1 | 60 | 10 `loup` | `[Daily] Traque de la Meute` | ✅ Validé in-game |
-| `HargoldPredateursDaily` | **Hargold** | 1 | 60 | 10 `machairodonte` | `[Daily] Dents de Sabre du Sud` | ✅ Validé in-game |
-| `MardonaScarabeDaily` | **Mardona** | 1 | 60 | 10 `scarabe` | `[Daily] Cuirasses de Scarabee` | ✅ Validé in-game |
-| `KliomoAraigneesDaily` | **Kliomo** | 1 | 60 | 10 `araneae` | `[Daily] Toiles et Carapaces` | ✅ Validé in-game |
-| `CorboisLynxDaily` | **Borin Corbois** | 1 | 60 | 10 `lynx sauvage` | `[Daily] La Chasse aux Felins` | ✅ Validé in-game |
-| `CorboisCochonsDaily` | **Borin Corbois** | 1 | 60 | 10 `cochon sauvage` | `[Daily] Ravitaillement de Gothwaite` | 🟡 En cours d'ajustement dialogue |
-| `GothwaiteRatsDaily` | **Capitaine de Gothwaite** | 1 | 60 | 10 `rat des neiges` | `[Daily] Nettoyage des Remparts` | 🟡 En cours (mobs 0 HP à fixer) |
-| `GothwaiteBranchesDaily` | **Capitaine de Gothwaite** | 1 | 60 | 8 `vieille branche` | `[Daily] Menace Sylvestre` | 🟡 En cours d'ajustement dialogue |
+| Classe C# | PNJ Donneur | Lieu | Min Lvl | Max Lvl | Cible & Quota | Titre |
+| :--- | :--- | :--- | :---: | :---: | :--- | :--- |
+| `GothwaiteRatsDaily` | **Capitaine de Gothwaite** | Remparts de Gothwaite | 1 | 60 | 10 `rat des neiges` | `[Daily] Nettoyage des Remparts` |
+| `CorboisLynxDaily` | **Borin Corbois** | Entrée de Gothwaite | 1 | 60 | 10 `lynx sauvage` | `[Daily] La Chasse aux Felins` |
+| `OdanBranchesDaily` | **Odan (Bûcheron)** | Village de Gothwaite | 1 | 60 | 8 `vieille branche` | `[Daily] Menace Sylvestre` |
+| `GarrickCochonsDaily` | **Garrick (Fret)** | Village de Gothwaite | 1 | 60 | 10 `cochon sauvage` | `[Daily] Ravitaillement de Gothwaite` |
+| `KliomoAraigneesDaily` | **Kliomo (Forgeron)** | Marché de Gothwaite | 1 | 60 | 10 `araneae` | `[Daily] Toiles et Carapaces` |
+| `MardonaScarabeDaily` | **Mardona (Forgeron)** | Marché de Gothwaite | 1 | 60 | 10 `scarabe` | `[Daily] Cuirasses de Scarabee` |
+| `HargoldPredateursDaily` | **Hargold (Mercenaire)** | Camp d'Hargold (Sud) | 1 | 60 | 10 `machairodonte` | `[Daily] Dents de Sabre du Sud` |
+| `GardeHargoldLoupsDaily` | **Garde d'Hargold** | Camp d'Hargold (Sud) | 1 | 60 | 10 `loup` | `[Daily] Traque de la Meute` |
 
 ### 🛡️ 2. Quêtes de Faction des Paladins de Tyr
 
-| Classe C# | PNJ Donneur | Type | Min Lvl | Max Lvl | Cible & Quota | Titre | Statut |
-| :--- | :--- | :---: | :---: | :---: | :--- | :--- | :---: |
-| `VoieDeLaJustice` | **Lysanor** | Unique | 1 | 60 | 5 `mort-vivant` | `La Voie de la Justice` | ❌ Retirée (PNJ non localisé) |
-| `TyrDailyPurge` | **Yasirah al-Nadir** | Daily | 40 | 60 | 10 `ange dechu` | `[Daily] Purge des Morts-Vivants` | 🛡️ Faction Tyr (Lvl 40+) |
-| `TyrDailyTraque` | **Yasirah al-Nadir** | Daily | 40 | 60 | 8 `heretique` | `[Daily] La Chasse aux Heretiques` | 🛡️ Faction Tyr (Lvl 40+) |
-| `TyrDailyProtection` | **Yasirah al-Nadir** | Daily | 40 | 60 | 12 `Esprit malveillant` | `[Daily] Rempart contre le Chaos` | 🛡️ Faction Tyr (Lvl 40+) |
-| `TyrWeeklyBoss` | **Yasirah al-Nadir** | Weekly | 45 | 60 | 1 `Vorrim BriseCrane` | `[Weekly] Le Fleau de Khorne` | 🛡️ Faction Tyr (Lvl 45+) |
+| Classe C# | PNJ Donneur | Lieu | Type | Min Lvl | Max Lvl | Cible & Quota | Titre |
+| :--- | :--- | :--- | :---: | :---: | :---: | :--- | :--- |
+| `VoieDeLaJustice` | **Dame Ysolde d'Argent** | Village de Gothwaite | Initiation | 1 | 60 | 5 `mort-vivant` | `La Voie de la Justice` |
+| `TyrDailyPurge` | **Yasirah al-Nadir** | Bastion de l'Ordre | Daily | 40 | 60 | 10 `ange dechu` | `[Daily] Purge des Morts-Vivants` |
+| `TyrDailyTraque` | **Yasirah al-Nadir** | Bastion de l'Ordre | Daily | 40 | 60 | 8 `heretique` | `[Daily] La Chasse aux Heretiques` |
+| `TyrDailyProtection` | **Yasirah al-Nadir** | Bastion de l'Ordre | Daily | 40 | 60 | 12 `Esprit malveillant` | `[Daily] Rempart contre le Chaos` |
+| `TyrWeeklyBoss` | **Yasirah al-Nadir** | Bastion de l'Ordre | Weekly | 45 | 60 | 1 `Vorrim BriseCrane` | `[Weekly] Le Fleau de Khorne` |
 
 ---
 

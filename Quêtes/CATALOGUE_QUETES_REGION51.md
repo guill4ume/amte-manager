@@ -20,25 +20,25 @@ Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'A
 
 ---
 
-### 📜 1.2 Menace Sylvestre (`GothwaiteBranchesDaily`)
-- **PNJ Donneur** : `Capitaine de Gothwaite` (Guilde: *Le Pacte Innomé*)
-- **Position** : Région 51 — `X: 534084, Y: 549425, Z: 4928, Heading: 3390`
+### 📜 1.2 Menace Sylvestre (`OdanBranchesDaily`)
+- **PNJ Donneur** : `Odan` (Guilde: *Bucheron*)
+- **Position** : Village de Gothwaite — `X: 522237, Y: 540600, Z: 3163, Heading: 3663`
 - **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 8 `vieille branche`
-- **Zone de Chasse** : Chemins boisés à l'ouest de Caer Gothwaite
-- **Dialogue d'Intro** : *"Des végétaux animés par une magie obscure bloquent les chemins au nord-ouest. Ces vieilles branches s'en prennent aux patrouilles isolées. Pouvez-vous [abattre les branches] pour dégager le passage ?"*
+- **Zone de Chasse** : Sentiers boisés autour du village
+- **Dialogue d'Intro** : *"Des végétaux animés par une magie obscure bloquent les chemins et menacent nos bûcherons. Ces vieilles branches attaquent quiconque s'aventure dans les bois. Pouvez-vous [abattre les branches] pour sécuriser nos coupes ?"*
 - **Mot-clé Acceptation** : `abattre les branches`
-- **Dialogue Accepté** : *"Que votre lame soit acérée."*
-- **Dialogue Rendu** : *"Parfait ! Les voies de patrouille sont dégagées."*
+- **Dialogue Accepté** : *"Que votre hache ou votre lame soit acérée."*
+- **Dialogue Rendu** : *"Parfait ! Les chemins de coupe sont à nouveau sûrs."*
 - **Mot-clé Rendu** : `branches abattues`
 
 ---
 
-## 🌲 2. Baronnie Corbois (Caer Gothwaite)
+## 🌲 2. Baronnie Corbois & Intendance (Caer Gothwaite & Village)
 
 ### 📜 2.1 La Chasse aux Félins (`CorboisLynxDaily`)
 - **PNJ Donneur** : `Borin Corbois` (Guilde: *Baronnie Corbois*)
-- **Position** : Région 51 — `X: 534119, Y: 549681, Z: 4928, Heading: 3039`
+- **Position** : Caer Gothwaite — `X: 534119, Y: 549681, Z: 4928, Heading: 3039`
 - **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 10 `lynx sauvage`
 - **Zone de Chasse** : Collines à l'ouest de Caer Gothwaite
@@ -50,16 +50,16 @@ Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'A
 
 ---
 
-### 📜 2.2 Ravitaillement de Gothwaite (`CorboisCochonsDaily`)
-- **PNJ Donneur** : `Borin Corbois` (Guilde: *Baronnie Corbois*)
-- **Position** : Région 51 — `X: 534119, Y: 549681, Z: 4928, Heading: 3039`
+### 📜 2.2 Ravitaillement de Gothwaite (`GarrickCochonsDaily`)
+- **PNJ Donneur** : `Garrick` (Guilde: *Fret*)
+- **Position** : Village de Gothwaite — `X: 525534, Y: 540110, Z: 3225, Heading: 3677`
 - **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 10 `cochon sauvage`
-- **Zone de Chasse** : Taillis au sud-ouest de Caer Gothwaite
-- **Dialogue d'Intro** : *"Les cuisines du fort manquent de vivres frais et de viande pour les gardes. Les cochons sauvages pullulent dans les taillis au sud-ouest. Pouvez-vous [chasser les cochons] pour ravitailler nos réserves ?"*
+- **Zone de Chasse** : Taillis aux abords du village de Gothwaite
+- **Dialogue d'Intro** : *"Nos convois de ravitaillement manquent de vivres frais et de viande. Les cochons sauvages pullulent dans les taillis aux abords du village. Pouvez-vous [chasser les cochons] pour ravitailler nos stocks ?"*
 - **Mot-clé Acceptation** : `chasser les cochons`
-- **Dialogue Accepté** : *"Rapportez du gibier gras pour nos cuisines !"*
-- **Dialogue Rendu** : *"Nos gardes mangeront à leur faim ce soir. Merci !"*
+- **Dialogue Accepté** : *"Rapportez du gibier gras pour notre intendance !"*
+- **Dialogue Rendu** : *"Le village aura de quoi manger grâce à vous. Merci !"*
 - **Mot-clé Rendu** : `cochons chassés`
 
 ---
@@ -68,7 +68,7 @@ Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'A
 
 ### 📜 3.1 Toiles et Carapaces (`KliomoAraigneesDaily`)
 - **PNJ Donneur** : `Kliomo` (Guilde: *Forgeron d'âme tranchante*)
-- **Position** : Région 51 — `X: 535086, Y: 550899, Z: 4863, Heading: 1989`
+- **Position** : Caer Gothwaite — `X: 535086, Y: 550899, Z: 4863, Heading: 1989`
 - **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 10 `araneae`
 - **Zone de Chasse** : Vallée au sud-ouest
@@ -82,7 +82,7 @@ Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'A
 
 ### 📜 3.2 Cuirasses de Scarabée (`MardonaScarabeDaily`)
 - **PNJ Donneur** : `Mardona` (Guilde: *Forgeron d'âme perforatrice*)
-- **Position** : Région 51 — `X: 535168, Y: 550879, Z: 4863, Heading: 1830`
+- **Position** : Caer Gothwaite — `X: 535168, Y: 550879, Z: 4863, Heading: 1830`
 - **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 10 `scarabe`
 - **Zone de Chasse** : Plaine au sud-est de Caer Gothwaite
@@ -98,7 +98,7 @@ Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'A
 
 ### 📜 4.1 Dents de Sabre du Sud (`HargoldPredateursDaily`)
 - **PNJ Donneur** : `Hargold` (Guilde: *Mercenaire*)
-- **Position** : Région 51 — `X: 535481, Y: 541402, Z: 3278, Heading: 3916`
+- **Position** : Camp d'Hargold — `X: 535481, Y: 541402, Z: 3278, Heading: 3916`
 - **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 10 `machairodonte`
 - **Zone de Chasse** : Plateaux rocheux au sud-est du camp
@@ -110,13 +110,13 @@ Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'A
 
 ---
 
-### 📜 4.2 Traque de la Meute (`HargoldLoupsDaily`)
-- **PNJ Donneur** : `Hargold` (Guilde: *Mercenaire*)
-- **Position** : Région 51 — `X: 535481, Y: 541402, Z: 3278, Heading: 3916`
+### 📜 4.2 Traque de la Meute (`GardeHargoldLoupsDaily`)
+- **PNJ Donneur** : `Garde d'Hargold` (Guilde: *Mercenaire*)
+- **Position** : Camp d'Hargold — `X: 535617, Y: 541382, Z: 3173, Heading: 15`
 - **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 10 `loup`
 - **Zone de Chasse** : Collines méridionales
-- **Dialogue d'Intro** : *"Une meute de loups agressifs encercle nos patrouilles et égorge les montures. Leurs hurlements résonnent chaque nuit dans les contreforts sud. Pouvez-vous [traquer la meute] et rétablir le calme ?"*
+- **Dialogue d'Intro** : *"Une meute de loups agressifs encercle notre avant-poste et égorge les montures. Leurs hurlements résonnent chaque nuit dans les contreforts sud. Pouvez-vous [traquer la meute] et rétablir le calme ?"*
 - **Mot-clé Acceptation** : `traquer la meute`
 - **Dialogue Accepté** : *"Traquez-les sans merci champion."*
 - **Dialogue Rendu** : *"Le silence retombe enfin sur les collines. Beau travail !"*
@@ -124,13 +124,18 @@ Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'A
 
 ---
 
-## ⚔️ 5. Faction des Paladins de Tyr (Bastion de l'Ordre)
+## ⚔️ 5. Faction des Paladins de Tyr
 
 ### 📜 5.1 La Voie de la Justice (`VoieDeLaJustice`)
-- **PNJ Donneur** : `Lysanor` (Guilde: *Paladins de Tyr*)
-- **Position** : Région 51 — `X: 467618, Y: 476558, Z: 3848, Heading: 3051`
+- **PNJ Donneur** : `Dame Ysolde d'Argent` (Guilde: *Paladins de Tyr*)
+- **Position** : Village de Gothwaite — `X: 523363, Y: 542392, Z: 3185, Heading: 3083`
 - **Type** : Quête d'initiation (Unique) | **Niveaux** : 1 à 60
 - **Cible** : 5 `mort-vivant` | **Récompense Faction** : 1020 (Paladins de Tyr)
+- **Dialogue d'Intro** : *"Les forces des ténèbres s'étendent sur Avalon. Les morts-vivants souillent la terre sacrée. Prouvez votre foi et votre valeur en purgeant ces créatures impies. Voulez-vous [prouver votre foi] ?"*
+- **Mot-clé Acceptation** : `prouver ma foi`
+- **Dialogue Accepté** : *"Que la lumière de Tyr guide votre bras."*
+- **Dialogue Rendu** : *"Vous avez fait preuve de bravoure. Je vous nomme Initié de Tyr."*
+- **Mot-clé Rendu** : `devoir accompli`
 
 ---
 
