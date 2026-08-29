@@ -175,3 +175,27 @@ public static void ScriptUnloaded(DOLEvent e, object sender, EventArgs args)
     questNPC.RemoveQuestToGive(typeof(MaQuete));
 }
 ```
+
+---
+
+## 5. 🐺 Bestiaire, Factions & Géographie des Quêtes
+
+> [!TIP]
+> L'immersion et l'ergonomie de jeu reposent sur un calibrage rigoureux des distances de marche et des paramètres de monstres en base de données.
+
+### 5.1 Règle de Proximité Géographique (< 30 000 unités)
+
+- **Contrainte Débutant** : Pour toute quête de niveau 1 à 15 (ex: Caer Gothwaite), la distance euclidienne $\sqrt{(X_{mob} - X_{village})^2 + (Y_{mob} - Y_{village})^2}$ entre le donneur de quête et le banc de monstres cibles doit impérativement être **inférieure à 30 000 unités**.
+- **Exemple concret** : Les quêtes d'initiation et de bas niveau ne doivent pas envoyer les joueurs à l'autre bout de la Région 51 (comme Prios à 87 000 unités). Des spawns dédiés (ex: 20 `mort-vivant` niveau 4 aux contreforts ouest à ~8 000 unités) doivent être injectés aux abords immédiats.
+
+### 5.2 Paramétrage Vital des Monstres en Base de Données (`mob`)
+
+Lors de la création ou du correctif de créatures pour des quêtes :
+1. **Points de Vie & Constitution (`Constitution`)** :
+   - Ne **JAMAIS** laisser `Constitution = 0`. Tout mob doit avoir `Constitution >= 15` et `Strength >= 20` pour posséder un pool de PV valide et ne pas mourir instantanément.
+2. **Agressivité & Portée d'Aggro (`AggroLevel`, `AggroRange`)** :
+   - Si `AggroLevel = 0` et `AggroRange = 0`, le monstre ne ciblera jamais le joueur.
+   - Pour des monstres agressifs ou défendant leur territoire, définir au minimum `AggroLevel = 80` (ou `100`) et `AggroRange = 400`.
+3. **Faction Cohérente (`FactionID`)** :
+   - Toujours lier les animaux sauvages à la faction **Faune** (`FactionID = 1005`), et non à des cultes réprouvés (comme Jormag `1001` ou Khorne `1002`) sauf scénario RP spécifique.
+
