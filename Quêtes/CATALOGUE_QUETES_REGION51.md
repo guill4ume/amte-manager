@@ -1,21 +1,40 @@
 # 🏰 Spécification & Catalogue Détaillé : Quêtes d'Avalon (Région 51)
 
-Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'Avalon (Région 51), avec leurs coordonnées, leurs dialogues immersifs, leurs mots-clés et leurs récompenses.
+Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'Avalon (Région 51), avec leurs coordonnées, leurs dialogues immersifs, leurs mots-clés, leurs récompenses et la distance exacte des monstres cibles par rapport au village de Caer Gothwaite.
 
 ---
 
-## 🏛️ 1. Garnison de Caer Gothwaite
+## 🗺️ Géographie de la Région 51 & Proximité des Monstres
 
-### 📜 1.1 Nettoyage des Remparts (`GothwaiteRatsDaily`)
-- **PNJ Donneur** : `Capitaine de Gothwaite` (Guilde: *Le Pacte Innomé*)
-- **Position** : Région 51 — `X: 534084, Y: 549425, Z: 4928, Heading: 3390`
+- **Centre de référence (Village de Caer Gothwaite)** : `X: 525000, Y: 541500` (Zone 51 - Isle of Glass).
+- **Position relative par rapport à Prios** : Caer Gothwaite se trouve au Sud-Est de Prios (Prios étant situé dans la zone 52 - Avalon Isle à `X ~ 450000, Y ~ 490000`).
+
+| Monstre Cible | Quête Associée | Distance Village | Localisation & Spawns |
+| :--- | :--- | :---: | :--- |
+| `rat des neiges` | 1.1 `MorwennaRatsDaily` | **1 000 à 4 000 u** | Directement dans le village (ruelles, réserves) |
+| `lynx sauvage` | 2.1 `BorinThekesdLynxDaily` | **4 900 à 10 200 u** | Collines à l'ouest / sud-ouest immédiat |
+| `vieille branche` | 1.2 `OdanBranchesDaily` | **6 200 à 14 600 u** | Sentiers boisés à l'ouest |
+| `cochon sauvage` | 2.2 `GarrickCochonsDaily` | **9 500 à 13 900 u** | Taillis au sud-ouest |
+| `araneae` | 3.1 `KliomoAraigneesDaily` | **9 000 à 18 200 u** | Vallée au sud du village |
+| `machairodonte` | 4.1 `HargoldPredateursDaily` | **16 900 à 21 100 u** | Plateaux au sud-est (près du camp d'Hargold) |
+| `loup` | 4.2 `GardeHargoldLoupsDaily` | **20 800 à 31 000 u** | Collines méridionales au sud |
+| `scarabe` | 3.2 `MardonaScarabeDaily` | **27 600 à 32 900 u** | Plaine au sud-est |
+| `mort-vivant` | 5.1 `VoieDeLaJustice` | **~8 000 u** | Contreforts ouest aux abords de Caer Gothwaite (20 spawns niveau 4) |
+
+---
+
+## 🏛️ 1. Village de Caer Gothwaite & Soins
+
+### 📜 1.1 Nettoyer la Ville (`MorwennaRatsDaily`)
+- **PNJ Donneur** : `Morwenna` (Guilde: *Medecin*)
+- **Position** : Village de Gothwaite — `X: 527284, Y: 542857, Z: 3168, Heading: 2115`
 - **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 10 `rat des neiges`
-- **Zone de Chasse** : Abords des silos et des remparts ouest de Caer Gothwaite
-- **Dialogue d'Intro** : *"Des rats des neiges pullulent autour des réserves et des remparts de Caer Gothwaite. Ils rongent les provisions et affaiblissent nos défenses. Pouvez-vous [éliminer les rats] pour sécuriser les abords ?"*
+- **Zone de Chasse** : Rues, ruelles et réserves du village de Caer Gothwaite
+- **Dialogue d'Intro** : *"Des rats des neiges ont envahi les ruelles et les réserves du village. Ils rongent nos stocks d'herbes et apportent la vermine. Pouvez-vous [éliminer les rats] pour assainir le village ?"*
 - **Mot-clé Acceptation** : `éliminer les rats`
-- **Dialogue Accepté** : *"Faites vite, la garnison compte sur vous."*
-- **Dialogue Rendu** : *"Beau travail ! Les remparts et nos provisions sont saufs."*
+- **Dialogue Accepté** : *"Merci pour votre aide, prenez garde à leurs morsures !"*
+- **Dialogue Rendu** : *"Formidable ! Le village et nos provisions sont saufs."*
 - **Mot-clé Rendu** : `rats éliminés`
 
 ---
@@ -25,7 +44,7 @@ Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'A
 - **Position** : Village de Gothwaite — `X: 522237, Y: 540600, Z: 3163, Heading: 3663`
 - **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 8 `vieille branche`
-- **Zone de Chasse** : Sentiers boisés autour du village
+- **Zone de Chasse** : Sentiers boisés à l'ouest du village
 - **Dialogue d'Intro** : *"Des végétaux animés par une magie obscure bloquent les chemins et menacent nos bûcherons. Ces vieilles branches attaquent quiconque s'aventure dans les bois. Pouvez-vous [abattre les branches] pour sécuriser nos coupes ?"*
 - **Mot-clé Acceptation** : `abattre les branches`
 - **Dialogue Accepté** : *"Que votre hache ou votre lame soit acérée."*
@@ -34,15 +53,15 @@ Ce catalogue détaille l'ensemble des quêtes actives déployées sur l'île d'A
 
 ---
 
-## 🌲 2. Baronnie Corbois & Intendance (Caer Gothwaite & Village)
+## 🌲 2. Cercle du Croc & Intendance (Village de Gothwaite)
 
-### 📜 2.1 La Chasse aux Félins (`CorboisLynxDaily`)
-- **PNJ Donneur** : `Borin Corbois` (Guilde: *Baronnie Corbois*)
-- **Position** : Caer Gothwaite — `X: 534119, Y: 549681, Z: 4928, Heading: 3039`
+### 📜 2.1 La Chasse aux Félins (`BorinThekesdLynxDaily`)
+- **PNJ Donneur** : `Borin Thekesd` (Guilde: *Le Cercle du Croc*)
+- **Position** : Village de Gothwaite — `X: 524728, Y: 541250, Z: 3217, Heading: 1134`
 - **Type** : Daily PvE | **Niveaux** : 1 à 60
 - **Cible** : 10 `lynx sauvage`
-- **Zone de Chasse** : Collines à l'ouest de Caer Gothwaite
-- **Dialogue d'Intro** : *"Les lynx sauvages attaquent nos messagers et nos porteurs sur les sentiers. La Baronnie Corbois récompense quiconque aide à sécuriser les routes de commerce. Voulez-vous [chasser les lynx] pour protéger notre domaine ?"*
+- **Zone de Chasse** : Collines à l'ouest du village de Gothwaite
+- **Dialogue d'Intro** : *"Les lynx sauvages attaquent nos patrouilles et nos rabatteurs sur les sentiers. Le Cercle du Croc récompense quiconque aide à sécuriser les abords du village. Voulez-vous [chasser les lynx] pour protéger notre domaine ?"*
 - **Mot-clé Acceptation** : `chasser les lynx`
 - **Dialogue Accepté** : *"Bonne traque, jeune aventurier."*
 - **Dialogue Rendu** : *"Excellente chasse ! Voici votre récompense."*

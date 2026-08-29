@@ -8,12 +8,34 @@ Ce document assure le suivi centralisé de tous les chantiers de quêtes : lots 
 
 | Région / Faction | Lot | Description | Nombre | Statut Local | Statut VPS (Prod) |
 | :--- | :---: | :--- | :---: | :---: | :---: |
-| **Caer Gothwaite (Région 51)** | **Lot 2** | Quêtes quotidiennes bas niveau (1-15) faune d'Avalon (Capitaine, Borin, Kliomo, Mardona, Hargold) | **8** | ✅ Validé & Déployé | 🟡 En cours de test |
-| **Paladins de Tyr (Région 51)** | **Faction** | Initiation + 3 Dailies + 1 Weekly Boss (Lysanor & Yasirah al-Nadir) | **5** | ✅ Validé & Déployé | 🟡 En cours de test |
+| Région / Faction | Lot | Description | Nombre | Statut Local | Statut VPS (Prod) |
+| :--- | :---: | :--- | :---: | :---: | :---: |
+| **Caer Gothwaite (Région 51)** | **Lot 2** | Quêtes quotidiennes bas niveau (1-15) faune d'Avalon (Morwenna, Borin Thekesd, Odan, Garrick, Kliomo, Mardona, Hargold, Garde) | **8** | ✅ Validé & Déployé | 🟡 En cours de test |
+| **Paladins de Tyr (Région 51)** | **Faction** | Initiation + 3 Dailies + 1 Weekly Boss (Dame Ysolde & Yasirah al-Nadir) | **5** | ✅ Validé & Déployé | 🟡 En cours de test |
 | **Lyonesse / James (Archivées)** | **Lot 1** | Anciennes quêtes génériques Shrouded Isles (dépacées/mobs absents) | **11** | 📦 Archivées | 📦 Archivées |
 | **Village d'Emblème (Région 51)** | **Lot 3** | Quêtes intermédiaires (niveaux 15-30) autour d'Emblème | *À venir* | ⏳ En attente | ⏳ En attente |
 | **Village de Breamor (Région 51)** | **Lot 4** | Quêtes avancées (niveaux 30-45) autour de Breamor | *À venir* | ⏳ En attente | ⏳ En attente |
 | **Frontières / RvR / BG** | **RvR** | Quêtes de capture de fort, reliques et élimination de joueurs | **50+** | ✅ Natif DOL | ✅ Natif DOL |
+
+---
+
+## 🗺️ Cartographie & Distances depuis Caer Gothwaite (Centre: X=525000, Y=541500)
+
+La Région 51 regroupe plusieurs zones géographiques interconnectées, dont **Isle of Glass (Zone 51)** abritant Caer Gothwaite, et **Avalon Isle (Zone 52)** abritant Prios au nord.
+
+| Monstre Cible | Spawns BDD | Plage Niveaux | Distance Min | Distance Max | Distance Moyenne | Situation Géographique |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| `rat des neiges` | 31 | 1 | 1 063 u | 3 961 u | **2 644 u** | 🟢 **Dans le village** (ruelles, cours) |
+| `lynx sauvage` | 26 | 2 | 4 931 u | 10 209 u | **7 017 u** | 🟢 **Abords ouest** (< 10k u) |
+| `vieille branche` | 24 | 3 - 5 | 6 271 u | 14 613 u | **10 192 u** | 🟢 **Sentiers ouest** (~10k u) |
+| `cochon sauvage` | 16 | 5 | 9 542 u | 13 916 u | **11 949 u** | 🟢 **Taillis sud-ouest** (~12k u) |
+| `araneae` | 26 | 7 | 9 015 u | 18 175 u | **12 595 u** | 🟢 **Vallée sud** (~13k u) |
+| `machairodonte` | 21 | 8 | 16 948 u | 21 093 u | **19 031 u** | 🟢 **Plateaux sud-est / Hargold** (~19k u) |
+| `loup` | 31 | 11 | 20 788 u | 31 068 u | **26 923 u** | 🟢 **Collines méridionales** (~27k u) |
+| `scarabe` | 21 | 9 | 27 646 u | 32 904 u | **30 088 u** | 🟡 **Plaine sud-est** (~30k u) |
+| `mort-vivant` | 20 | 4 | 7 100 u | 9 100 u | **8 023 u** | 🟢 **Contreforts ouest du village** (~8k u) |
+
+*Tous les monstres des quêtes 1 à 15 (Lot 2 + Initiation) sont vérifiés en BDD et se trouvent à proximité immédiate (≤ 30 000 unités) de Caer Gothwaite.*
 
 ---
 
@@ -23,8 +45,8 @@ Ce document assure le suivi centralisé de tous les chantiers de quêtes : lots 
 
 | Classe C# | PNJ Donneur | Lieu | Min Lvl | Max Lvl | Cible & Quota | Titre |
 | :--- | :--- | :--- | :---: | :---: | :--- | :--- |
-| `GothwaiteRatsDaily` | **Capitaine de Gothwaite** | Remparts de Gothwaite | 1 | 60 | 10 `rat des neiges` | `[Daily] Nettoyage des Remparts` |
-| `CorboisLynxDaily` | **Borin Corbois** | Entrée de Gothwaite | 1 | 60 | 10 `lynx sauvage` | `[Daily] La Chasse aux Felins` |
+| `MorwennaRatsDaily` | **Morwenna (Médecin)** | Village de Gothwaite | 1 | 60 | 10 `rat des neiges` | `[Daily] Nettoyer la Ville` |
+| `BorinThekesdLynxDaily` | **Borin Thekesd (Cercle du Croc)** | Village de Gothwaite | 1 | 60 | 10 `lynx sauvage` | `[Daily] La Chasse aux Felins` |
 | `OdanBranchesDaily` | **Odan (Bûcheron)** | Village de Gothwaite | 1 | 60 | 8 `vieille branche` | `[Daily] Menace Sylvestre` |
 | `GarrickCochonsDaily` | **Garrick (Fret)** | Village de Gothwaite | 1 | 60 | 10 `cochon sauvage` | `[Daily] Ravitaillement de Gothwaite` |
 | `KliomoAraigneesDaily` | **Kliomo (Forgeron)** | Marché de Gothwaite | 1 | 60 | 10 `araneae` | `[Daily] Toiles et Carapaces` |
@@ -65,7 +87,7 @@ Emplacement de sauvegarde : `ProjetsAnnexes/DossierPortage/Archives/Quests_Archi
 
 1. **Vérification du Cercle Doré** :
    - Se connecter avec un personnage joueur (niveau 1 à 50+).
-   - Se rendre auprès des PNJs donneurs (**Capitaine de Gothwaite**, **Borin Corbois**, **Kliomo**, **Mardona**, **Hargold**).
+   - Se rendre auprès des PNJs donneurs (**Morwenna**, **Borin Thekesd**, **Odan**, **Garrick**, **Kliomo**, **Mardona**, **Hargold**, **Garde d'Hargold**).
    - Constater la présence de l'indicateur visuel doré sous les pieds du PNJ.
 2. **Prise de Quête & Dialogue** :
    - Clic droit sur le PNJ $\rightarrow$ Le texte d'introduction et le mot-clé entre crochets s'affichent.
