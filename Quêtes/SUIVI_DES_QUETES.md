@@ -8,10 +8,8 @@ Ce document assure le suivi centralisé de tous les chantiers de quêtes : lots 
 
 | Région / Faction | Lot | Description | Nombre | Statut Local | Statut VPS (Prod) |
 | :--- | :---: | :--- | :---: | :---: | :---: |
-| Région / Faction | Lot | Description | Nombre | Statut Local | Statut VPS (Prod) |
-| :--- | :---: | :--- | :---: | :---: | :---: |
-| **Caer Gothwaite (Région 51)** | **Lot 2** | Quêtes quotidiennes bas niveau (1-15) faune d'Avalon (Morwenna, Borin Thekesd, Odan, Garrick, Kliomo, Mardona, Hargold, Garde) | **8** | ✅ Validé & Déployé | 🟡 En cours de test |
-| **Paladins de Tyr (Région 51)** | **Faction** | Initiation + 3 Dailies + 1 Weekly Boss (Dame Ysolde & Yasirah al-Nadir) | **5** | ✅ Validé & Déployé | 🟡 En cours de test |
+| **Caer Gothwaite (Région 51)** | **Lot 2** | Quêtes quotidiennes bas niveau (1-15) faune d'Avalon (Morwenna, Borin Thekesd, Odan, Garrick, Kliomo, Mardona, Hargold, Garde) | **8** | ✅ Validé & Déployé | ✅ Validé & Déployé |
+| **Paladins de Tyr (Région 51)** | **Faction** | Initiation + 3 Dailies + 1 Weekly Boss (Dame Ysolde & Yasirah al-Nadir) | **5** | ✅ Validé & Déployé | ✅ Validé & Déployé |
 | **Lyonesse / James (Archivées)** | **Lot 1** | Anciennes quêtes génériques Shrouded Isles (dépacées/mobs absents) | **11** | 📦 Archivées | 📦 Archivées |
 | **Village d'Emblème (Région 51)** | **Lot 3** | Quêtes intermédiaires (niveaux 15-30) autour d'Emblème | *À venir* | ⏳ En attente | ⏳ En attente |
 | **Village de Breamor (Région 51)** | **Lot 4** | Quêtes avancées (niveaux 30-45) autour de Breamor | *À venir* | ⏳ En attente | ⏳ En attente |
