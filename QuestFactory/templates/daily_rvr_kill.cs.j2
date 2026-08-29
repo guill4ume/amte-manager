@@ -43,8 +43,8 @@ namespace DOL.GS.DailyQuest.{{ realm }}
 		{
 			get
 			{
-				foreach (GameNPC npc in WorldMgr.GetNPCsByName(NPC_NAME, eRealm.{{ realm }}))
-					if (npc.CurrentRegionID == NPC_REGION && npc.X == NPC_X && npc.Y == NPC_Y)
+				foreach (GameNPC npc in WorldMgr.GetNPCsFromRegion((ushort)NPC_REGION))
+					if (npc.Name == NPC_NAME && Math.Abs(npc.X - NPC_X) < 100 && Math.Abs(npc.Y - NPC_Y) < 100)
 						return npc;
 				return null;
 			}
@@ -76,8 +76,20 @@ namespace DOL.GS.DailyQuest.{{ realm }}
 			}
 		}
 
+		[GameServerStartedEvent]
+		public static void OnServerStarted(DOLEvent e, object sender, EventArgs args)
+		{
+			InitQuest();
+		}
+
 		[ScriptLoadedEvent]
 		public static void ScriptLoaded(DOLEvent e, object sender, EventArgs args)
+		{
+			GameEventMgr.AddHandlerUnique(GamePlayerEvent.AcceptQuest, new DOLEventHandler(SubscribeQuest));
+			GameEventMgr.AddHandlerUnique(GamePlayerEvent.DeclineQuest, new DOLEventHandler(SubscribeQuest));
+		}
+
+		public static void InitQuest()
 		{
 			if (!ServerProperties.Properties.LOAD_QUESTS)
 				return;
@@ -117,16 +129,16 @@ namespace DOL.GS.DailyQuest.{{ realm }}
 			#region defineObject
 			#endregion
 
-			GameEventMgr.AddHandler(GamePlayerEvent.AcceptQuest, new DOLEventHandler(SubscribeQuest));
-			GameEventMgr.AddHandler(GamePlayerEvent.DeclineQuest, new DOLEventHandler(SubscribeQuest));
+			GameEventMgr.AddHandlerUnique(GamePlayerEvent.AcceptQuest, new DOLEventHandler(SubscribeQuest));
+			GameEventMgr.AddHandlerUnique(GamePlayerEvent.DeclineQuest, new DOLEventHandler(SubscribeQuest));
 
-			GameEventMgr.AddHandler(questNPC, GameObjectEvent.Interact, new DOLEventHandler(TalkTo{{ npc_var }}));
-			GameEventMgr.AddHandler(questNPC, GameLivingEvent.WhisperReceive, new DOLEventHandler(TalkTo{{ npc_var }}));
+			GameEventMgr.AddHandlerUnique(questNPC, GameObjectEvent.Interact, new DOLEventHandler(TalkTo{{ npc_var }}));
+			GameEventMgr.AddHandlerUnique(questNPC, GameLivingEvent.WhisperReceive, new DOLEventHandler(TalkTo{{ npc_var }}));
 
 			questNPC.AddQuestToGive(typeof ({{ class_name }}));
 
 			if (log.IsInfoEnabled)
-				log.Info("Quest \"" + questTitle + "\" initialized");
+				log.Info("Quest \"" + questTitle + "\" initialized on " + questNPC.Name);
 		}
 
 		[ScriptUnloadedEvent]

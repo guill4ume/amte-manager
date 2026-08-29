@@ -108,27 +108,39 @@ Puisque le backend PHP d'AmteManager a été supprimé et n'est pas pratique pou
 
 ---
 
-## 5. Questions Ouvertes pour Validation (Conceptualisation)
+---
 
-Pour affiner notre plan de travail, nous devons clarifier les points suivants :
+## 5. Spécifications Techniques des Évolutions V2 (Juin 2026)
 
-> [!IMPORTANT]
-> **Q1. Accès à la base de données :**
-> Souhaitez-vous que le serveur Python `server.py` s'exécute directement sur l'hôte Windows (ce qui nécessite d'exposer le port `3306` de MariaDB dans `docker-compose.yml`), ou préférez-vous que nous conteneurisions également le backend/frontend d'AmteManagerV2 pour qu'il tourne dans le même réseau Docker que le serveur de jeu ?
-> *(Note : L'exécution directe sur Windows est généralement plus simple pour le développement local et la compilation/l'écriture directe des fichiers C#).*
+### 5.1 Archivage & Restauration
+Pour éviter que les PNJs et Quêtes créés par les joueurs ne soient perdus définitivement après 14 jours d'auto-destruction ou lors de suppressions par l'utilisateur :
+- **Tables miroirs** : `mob_archive` et `dataquestjson_archive` conservent la structure exacte de leurs tables parentes.
+- **Suppression (AmteManager)** : Toute action SQL `DELETE` interceptée par le proxy `server.py` sur `mob` ou `dataquestjson` copie au préalable l'enregistrement vers la table d'archive correspondante.
+- **Expiration (GameServer C#)** : Lorsque le timer d'auto-destruction d'un PNJ (`NPCTemplateID = -99`) expire, le serveur exécute deux requêtes directes SQL via `ExecuteNonQuery` :
+  1. `INSERT INTO mob_archive SELECT * FROM mob WHERE Mob_ID = '{InternalID}'`
+  2. `DELETE FROM mob WHERE Mob_ID = '{InternalID}'`
+  Ceci nettoie la base de données active tout en conservant la sauvegarde.
+- **Restauration** : L'administrateur peut restaurer l'entité depuis la page admin. Le backend fait l'opération inverse et met à jour le champ `LastTimeRowUpdated` à `NOW()` pour réinitialiser le cycle de vie de 14 jours du PNJ.
 
-> [!IMPORTANT]
-> **Q2. Méthode d'intégration des Quêtes C# :**
-> Actuellement, les quêtes d'OpenDAoC-SPB sont compilées au démarrage du serveur de jeu depuis le dossier des scripts C#. 
-> - Confirmez-vous que nous devons continuer à générer des fichiers physiques `.cs` (comme le fait QuestFactory) pour les placer dans le dossier scripts ?
-> - Ou souhaitez-vous que nous étudions l'introduction d'un chargeur de quêtes dynamique (comme `dataquestjson` sur Breamor) qui lirait les quêtes directement depuis la base de données au démarrage ou à chaud sans recompiler le serveur ?
-> *(Note : La génération de fichiers C# physiques est très robuste, tandis que le chargement dynamique en base de données évite de devoir redémarrer ou recompiler le serveur).*
+### 5.2 Espace Administration & Modération
+- **Restriction d'accès** : Accès réservé aux utilisateurs ayant un `privLevel >= 2`.
+- **Interface** : Une page `AdminView.vue` centralise la liste des créations actives et archivées.
+- **Pérennisation (1-clic)** :
+  - **Quêtes** : Marquées comme permanentes (`is_permanent = 1`) en BDD. Attribution de points à l'auteur en fonction du nombre de tâches/étapes dans `GoalsJson` (20 points par étape, minimum 10).
+  - **PNJs** : Le `NPCTemplateID` passe de `-99` (Temporaire) à `-100` (Permanent). Le GameServer C# charge les PNJs `-100` (Z-snapping actif) mais ne lance pas de timer d'auto-destruction.
+- **Immuabilité** : Dès qu'une quête est marquée `is_permanent = 1`, toute tentative d'édition (`UPDATE`) ou de suppression (`DELETE`) par son auteur (si son `privLevel < 2`) est bloquée et renvoie une erreur 403.
 
-> [!IMPORTANT]
-> **Q3. Gestion de l'authentification et des comptes :**
-> - Pour la connexion sur l'interface, devons-nous utiliser la table `account` existante du serveur OpenDAoC-SPB ?
-> - Comment les joueurs s'inscriront-ils ou obtiendront-ils leur accès ? (Par exemple, toute personne ayant un compte joueur en jeu a automatiquement un accès "Joueur" sur l'interface, et les comptes GM/Admin ont l'accès complet ?)
 
-> [!IMPORTANT]
-> **Q4. Les cartes et images Leaflet :**
-> Où sont situées les images des cartes d'Avalon (`51.jpg` à `57.jpg`) ? Sont-elles déjà présentes dans le dossier `QuestPlayerFactory/maps` ?
+### 5.3 Système de Notation
+- **Persistence** : Stockage dans la table `quest_ratings` (AccountName, QuestID, Rating, Comment).
+- **Sécurisation des évaluations** : Seuls les administrateurs et les comptes joueurs ayant terminé la quête (`Step = -1` dans la table `quest` pour ce `QuestId`) ont le droit de poster ou de visualiser les évaluations de cette quête dans l'interface.
+
+### 5.4 Progression Créateurs
+- **Stockage** : Les points créateurs sont enregistrés dans la colonne `creator_points` de la table `account`.
+- **Paliers & Déblocages** :
+  - **Tier 0** (< 100 points) : PNJs simples (Niveau max = 10, pas d'équipement personnalisé, pas d'effets visuels).
+  - **Tier 1** (100 - 499 points) : Création jusqu'au niveau 30, équipements d'armes simples autorisés (`EquipmentTemplateID` actif).
+  - **Tier 2** (500 - 999 points) : Création jusqu'au niveau 50 (Possibilité de concevoir des Boss avec capacités spéciales).
+  - **Tier 3** (>= 1000 points) : Personnalisation visuelle avancée (Spécification d'un effet visuel de spawn `SpawnEffect` et d'émotes/barks).
+- **Validation Backend** : Le backend `server.py` compare les paramètres de la requête d'insertion avec les points de l'auteur et rejette l'insertion en cas d'infraction aux règles de palier.
+
