@@ -194,8 +194,44 @@ Lors de la création ou du correctif de créatures pour des quêtes :
 1. **Points de Vie & Constitution (`Constitution`)** :
    - Ne **JAMAIS** laisser `Constitution = 0`. Tout mob doit avoir `Constitution >= 15` et `Strength >= 20` pour posséder un pool de PV valide et ne pas mourir instantanément.
 2. **Agressivité & Portée d'Aggro (`AggroLevel`, `AggroRange`)** :
-   - Si `AggroLevel = 0` et `AggroRange = 0`, le monstre ne ciblera jamais le joueur.
+   - Si `AggroLevel = 0` et `AggroRange = 0`, le monstre ne ciblera jamais le joueur et ignorera le combat de proximité.
    - Pour des monstres agressifs ou défendant leur territoire, définir au minimum `AggroLevel = 80` (ou `100`) et `AggroRange = 400`.
-3. **Faction Cohérente (`FactionID`)** :
+   - Pour des animaux ou monstres réactifs (ours, sangliers), définir `AggroLevel = 60` et `AggroRange = 350` avec `Brain = 'DOL.AI.Brain.StandardMobBrain'` pour qu'ils ripostent et foncent sur le joueur dès qu'ils subissent une attaque à distance.
+3. **Vitesse de Déplacement (`Speed`)** :
+   - Ne **JAMAIS** laisser `Speed = 0` sur un monstre mobile, sous peine de le rendre totalement statique et incapable de charger le joueur lorsqu'il est attaqué.
+   - **Monstres normaux / animaux** : `Speed = 200`.
+   - **Morts-vivants / zombies** : `Speed = 100` (marche lente immersive et cohérente).
+4. **Faction Cohérente (`FactionID`)** :
    - Toujours lier les animaux sauvages à la faction **Faune** (`FactionID = 1005`), et non à des cultes réprouvés (comme Jormag `1001` ou Khorne `1002`) sauf scénario RP spécifique.
+
+---
+
+## 6. 🔴 Indicateurs Minicarte & Boussole pour les Quêtes (Points Rouges Dynamiques)
+
+> [!TIP]
+> Le client DAoC intègre nativement un système d'aiguillage cartographique : il affiche un point rouge / marqueur sur la minicarte (boussole/compass) et sur la carte de zone (`Shift+M` ou `M`) dès que le paquet de quête contient les coordonnées locales de zone.
+
+### 6.1 Fonctionnement du Paquet Réseau (`QuestEntry` 0x83)
+
+Dans `PacketLib187.cs` et `PacketLib1124.cs`, la sérialisation des objectifs de quête (`QuestGoalData`) applique la structure native :
+- `ZoneID1` : L'identifiant de la zone (`Zone.ZoneSkinID`, ex: 51 pour Isle of Glass).
+- `XOffset1` : La coordonnée X relative au coin supérieur gauche de la zone (`WorldX - Zone.XOffset`).
+- `YOffset1` : La coordonnée Y relative au coin supérieur gauche de la zone (`WorldY - Zone.YOffset`).
+- `Type` : Type d'objectif (`3` = Kill / Chasse aux monstres, `5` = Scout / Rendu au PNJ).
+- `IsAchieved` : `false` (`0x00`) active le point rouge ; `true` (`0x01`) désactive l'indicateur ou passe à l'objectif suivant.
+
+### 6.2 Cycle de Vie de l'Indicateur : Étape 1 (Chasse) $\rightarrow$ Étape 2 (Rendu)
+
+L'implémentation dans `BaseQuest.cs` et `RewardQuest.cs` commute automatiquement le point rouge :
+1. **Étape 1 (Chasse)** : Le marqueur rouge pointe sur les coordonnées du groupe de monstres (`TargetMobX`, `TargetMobY`).
+2. **Étape 2 (Rendu PNJ)** : Dès que le quota est atteint, le point rouge bascule pour pointer directement sur le PNJ donneur de quête (`TargetNpcX`, `TargetNpcY`).
+3. **Clôture** : Lors de la remise de la récompense, le marqueur s'efface proprement de la carte.
+
+### 6.3 Bonnes Pratiques de Renseignement dans `quests_definitions.csv`
+
+Pour garantir un affichage infaillible sans dépendre de la recherche dynamique en mémoire :
+- Toujours renseigner les colonnes `mob_region`, `mob_x`, `mob_y` avec les coordonnées moyennes du banc de créatures cibles.
+- Exemple pour les lynx sauvages : `mob_region = 51`, `mob_x = 518304`, `mob_y = 539783`.
+- Exemple pour les cochons sauvages : `mob_region = 51`, `mob_x = 513668`, `mob_y = 537786`.
+
 

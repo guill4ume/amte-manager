@@ -303,6 +303,16 @@ namespace DOL.GS.DailyQuest.{{ realm }}
 			get { return questTitle; }
 		}
 
+		public override string TargetMobName => "{{ mob_name_lower }}";
+		public override int TargetMobRegion => NPC_REGION;
+		public override int TargetMobX => {{ mob_x | default(0) }};
+		public override int TargetMobY => {{ mob_y | default(0) }};
+
+		public override string TargetNpcName => NPC_NAME;
+		public override int TargetNpcRegion => NPC_REGION;
+		public override int TargetNpcX => NPC_X;
+		public override int TargetNpcY => NPC_Y;
+
 		public override string Description
 		{
 			get
@@ -317,6 +327,7 @@ namespace DOL.GS.DailyQuest.{{ realm }}
 				return base.Description;
 			}
 		}
+
 
 		public override void Notify(DOLEvent e, object sender, EventArgs args)
 		{

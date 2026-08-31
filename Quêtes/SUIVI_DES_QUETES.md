@@ -89,9 +89,13 @@ Emplacement de sauvegarde : `ProjetsAnnexes/DossierPortage/Archives/Quests_Archi
    - Constater la présence de l'indicateur visuel doré sous les pieds du PNJ.
 2. **Prise de Quête & Dialogue** :
    - Clic droit sur le PNJ $\rightarrow$ Le texte d'introduction et le mot-clé entre crochets s'affichent.
-   - Clic sur le mot-clé $\rightarrow$ Le dialogue d'acceptation se déclenche et la quête s'ajoute au journal de quêtes (`/quest`).
-3. **Réalisation des Objectifs** :
+   - Clic sur le mot-clé $\rightarrow$ Le dialogue d'acceptation se déclenche et la quête s'ajoute au journal de quêtes (`/quest` ou touche `J`).
+3. **Indicateurs Minicarte & Boussole (Points Rouges)** :
+   - **Étape 1 (Chasse)** : Vérifier que la boussole/minicarte et la carte de zone (`Shift+M`) affichent un point rouge dynamique sur la position des créatures cibles.
+   - **Étape 2 (Rendu PNJ)** : Dès que le quota de monstres est atteint, vérifier que le point rouge bascule automatiquement pour pointer sur le PNJ donneur.
+4. **Réalisation des Objectifs** :
    - Tuer les monstres demandés $\rightarrow$ Vérifier l'incrémentation du compteur de quête à l'écran.
-4. **Rendu de Quête** :
+5. **Rendu de Quête** :
    - Retourner auprès du PNJ donneur $\rightarrow$ L'indicateur visuel de fin de quête est actif.
-   - Clic sur le mot-clé de validation $\rightarrow$ Réception de l'expérience, de l'or et clôture de l'étape.
+   - Clic sur le mot-clé de validation $\rightarrow$ Réception de l'expérience, de l'or et clôture de l'étape (effacement propre du marqueur).
+

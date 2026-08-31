@@ -276,6 +276,11 @@ namespace DOL.GS.DailyQuest
 			get { return questTitle; }
 		}
 
+		public override string TargetNpcName => NPC_NAME;
+		public override int TargetNpcRegion => NPC_REGION;
+		public override int TargetNpcX => NPC_X;
+		public override int TargetNpcY => NPC_Y;
+
 		// Define Steps
 		public override string Description
 		{
