@@ -93,21 +93,29 @@ quests_definitions.csv
 
 Chaque script généré utilise une **propriété dynamique** pour localiser le PNJ (ex: James) plutôt qu'une référence statique. Cela évite une race condition critique découverte en production : quand plusieurs scripts se chargent en parallèle, une référence statique `GameNPC James = null` pouvait rester null si le PNJ n'était pas encore créé au moment du chargement du script.
 
+> [!WARNING]
+> Sur Avalon (Région 51), la majorité des PNJs ont `Realm = 0` (`eRealm.None`). La méthode native `WorldMgr.GetNPCsByName(name, eRealm.Albion)` **échoue systématiquement** car le filtre interne compare `0 == 1` → `false`. Utiliser obligatoirement `GetNPCsFromRegion` avec tolérance spatiale.
+
 ```csharp
-// Pattern robuste (utilisé dans tous les templates)
+// Pattern robuste pour Avalon (Realm=0) — utilisé dans tous les templates
 private static GameNPC James
 {
     get
     {
-        foreach (GameNPC npc in WorldMgr.GetNPCsByName("James", eRealm.Albion))
-            if (npc.CurrentRegionID == 51 && npc.X == 534044 && npc.Y == 549664)
+        foreach (GameNPC npc in WorldMgr.GetNPCsFromRegion((ushort)NPC_REGION))
+        {
+            if (npc.Name.Equals("James", StringComparison.OrdinalIgnoreCase)
+                && Math.Abs(npc.X - NPC_X) < 100
+                && Math.Abs(npc.Y - NPC_Y) < 100)
                 return npc;
+        }
         return null;
     }
 }
 ```
 
 Cette propriété interroge `WorldMgr` à chaque appel, garantissant que le PNJ est toujours trouvé dès qu'il existe dans le monde, quelle que soit l'ordre de chargement des scripts.
+
 
 ### Correspondance type → template → dossier de sortie
 
@@ -192,9 +200,12 @@ dynamique, tous les scripts le retrouvent correctement même s'ils se chargent e
 
 ---
 
-## Quêtes déployées — Lot 1 (11 juin 2026)
+## ~~Quêtes déployées — Lot 1 (11 juin 2026)~~ *(Archivé — Août 2026)*
 
-10 quêtes Albion pour la région 51 (Lyonesse / Avalon), toutes assignées à **James** :
+> [!NOTE]
+> Ces 10 quêtes Albion pour la Région 51 (ciblant les créatures Lyonesse génériques) ont été **archivées en août 2026** car les mobs cibles n'existent pas dans la région 51 d'Amtenaël. Elles ont été remplacées par le **Lot 2** (quêtes Caer Gothwaite ciblant le bestiaire réel d'Avalon).
+>
+> Emplacement d'archive : `ProjetsAnnexes/DossierPortage/Archives/Quests_Archive_Region51/`
 
 | Classe C# | Type | Mob / Cible | Kills |
 |---|---|---|---|
@@ -208,6 +219,8 @@ dynamique, tous les scripts le retrouvent correctement même s'ils se chargent e
 | `LyonesseGhostQuestAlb` | Weekly PvE | Lyonesse Ghost | 20 |
 | `HardcoreOrangesAlbAvalon` | Hardcore Daily | Orange-con monsters | 10 |
 | `PlayerKillQuestAlbAvalon` | RvR Daily | Enemy players | 5 |
+
+
 
 ---
 
